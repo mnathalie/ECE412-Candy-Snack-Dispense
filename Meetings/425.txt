@@ -1,0 +1,19 @@
+2.2/2.29/
+latch up 7.3.6
+power=limitng factor to morre law
+cross product 6.3
+why do we do desgin corners Sec7.24
+reliablity =bathtub crub 7.6
+spice: different levels chapter 8 (accuracy and converenge are the only thing that changes)
+which is more accurate
+BSIM
+chapter 9:
+chapter 10: 3 different: master slave circut and comtaimation delay with scew 10.2.5
+10.2.2 and 10.2.3 ( be aware of changing from time to frequency
+
+
+
+
+ 
+
+
