@@ -1,0 +1,14 @@
+1. Talked about times to meet 
+2. Clear up Questions about project
+3. Questions to ask industry sponsor in bi weekly report
+4. Pending decision on type of GUI interface
+5. Super Rough Draft of Schematic
+
+1. Wednesday after/during Capstone class time. & Sunday 10am or so. 
+2. 
+    -Will use 3D printer to make the frame for the candy machine then buy the clear acrylic plastic in home depot or some place else
+    -Gears will be used with the motor in turning the archimedes screw
+    -Use stepper motor driver to interact between the motor and Lattice board
+3. Will the GUI interface control the acceleration/ deceleration and motor speed of the stepper motor in addition to controlling the amount of candy being dispensed 
+4. Need to make a decision on what type of GUI interface to build (App, Script to run, etc)
+5. Image will be posted
