@@ -1,5 +1,9 @@
 Matlab Works: HDL Coder: https://www.mathworks.com/products/hdl-coder/code-examples.html
         Example: *** https://www.mathworks.com/examples/matlab-hdl-coder/mw/hdlcoder_product-mlhdlc_tutorial_sfir-getting-started-with-matlab-to-hdl-workflow
         Example:  https://www.mathworks.com/examples/vision-hdl/mw/visionhdl-ex64676005-accelerate-a-pixel-streaming-design-using-matlab-coder#8
-        
-        
+       
+       
+Matlab GUI interfacing links
+        https://www.mathworks.com/help/xpc/ug/create-a-standalone-gui-using-the-matlab-compiler.html
+        https://www.mathworks.com/help/xpc/index.html
+        https://www.mathworks.com/help/xpc/ug/workflow.html
