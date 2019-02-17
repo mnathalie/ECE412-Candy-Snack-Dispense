@@ -9,3 +9,4 @@ Meeting
     -Jennifer working on enabling a GPIO/pin to output something from FPGA
     -Later will try to integrate to have Matlab send binary value (?) to communication to I2C
 -Jiawen looking at motor information/datasheet. How to send information to stepper motors to enable a full step
+-Discussed possible meeting times which will work for Industry sponser and for us to meet biweekly
