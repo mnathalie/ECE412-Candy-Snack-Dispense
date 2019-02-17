@@ -1,0 +1,11 @@
+Meeting 
+-We're using I2C for communication to FTDI chip
+-Calob will have a 3-D model of candy machine for next week/or meeting and is focusing on how we'll use the battery and will get display for GUI
+-Diagram for how the battery will power everything else
+-Jennifer and Nathalie discussed the communications between Matlab gui <-> USB I2C <-> FTDI chip <-> FPGA
+    -Diagram of of idea how it will all work together, broke down the starter kit blink program.
+    -Nathalie can use lattice IDE for blink program
+    -Nathalie working on addressing modes & slave/master communication for I2C
+    -Jennifer working on enabling a GPIO/pin to output something from FPGA
+    -Later will try to integrate to have Matlab send binary value (?) to communication to I2C
+-Jiawen looking at motor information/datasheet. How to send information to stepper motors to enable a full step
