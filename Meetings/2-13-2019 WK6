@@ -1,0 +1,14 @@
+Meeting with Industry sponser to discuss details about requirements
+-Candy machine must be battery powered as the main power supply
+-Focus on getting control of one stepper motor to eventually be able to control all 3 motors through GUI
+-External indicator lights apart from board
+-Use a small display for GUI (LCD, tablet, whatever works, etc)
+-Lattice documentation format -> use the way the starterkit guide is formated
+-Industry sponser gave details on how to use matlab to commmunicatie to lattice board. (Use of XO3 Native FIDI chip communication via USB, use SPI, I2C, UART drivers)
+-Email Industry sponser about possible meeting times with him to clear up any questions
+-Cleared up programming issues, (create a JEDEC file, and use FLASH PROGRAMMING MODE instead)
+Some ideas we discussed as a team
+-Use executable file in order to launch GUI interface in display
+-can use adafruit screen connected to raspberry pi / arduino
+-from there we can connect rasp pi to lattice board. The board should already have program to control motors
+-need to work on USB interface to communication from GUI to Lattice FIDI chip. 
