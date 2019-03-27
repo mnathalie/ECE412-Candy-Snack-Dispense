@@ -57,7 +57,7 @@ class SeaofBTCapp(tk.Tk):
         #else:
             
                 
-                
+ 
 
 
 
@@ -67,8 +67,6 @@ class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self,parent)
 
-
-
         #Nameing the Title page "HOME PAGE" with a given front size
         label = tk.Label(self, text="HOME PAGE", font=LARGE_FONT)
         #
@@ -76,8 +74,6 @@ class StartPage(tk.Frame):
         #Nameing the  1st button Dispense Candy
         button = tk.Button(self, text="Dispense Candy")
         button.pack()
-
-
 
         #Nameing the 2nd button Settings
         button1 = tk.Button(self, text="Settings",
@@ -89,14 +85,12 @@ class StartPage(tk.Frame):
                             command=lambda: controller.show_frame(TestingPage))
         button2.pack()
 
-
-
-
 # SettingsPage class, inheriting from tk.Frame
 class SettingsPage(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+        v = tk.IntVar()
         #Label widget
         label = tk.Label(self, text="Setting", font=LARGE_FONT)
         #.pack organizes widget in blocks using x and y axis
@@ -106,16 +100,13 @@ class SettingsPage(tk.Frame):
         label.pack(pady=10,padx=10)
 
         #1st Check Button
-        button = tk.Checkbutton(self, text="Small Amount")            
-        button.pack()
+        Rad1 = tk.Radiobutton(self, text="Small Amount", padx = 20, variable=v,value=1).pack(anchor=tk.W)  
         
         #2nd Check Button
-        button1 = tk.Checkbutton(self, text="Medium Amount")
-        button1.pack()
+        Rad2 = tk.Radiobutton(self, text="Medium Amount", padx = 20, variable=v,value=2).pack(anchor=tk.W)
 
         #3rd Check Button  
-        button2 = tk.Checkbutton(self, text="Large Amount")
-        button2.pack()
+        Rad3 = tk.Radiobutton(self, text="Large Amount", padx = 20, variable=v,value=3).pack(anchor=tk.W) 
         
         #1st Button check save and do stuff
         button3 = tk.Button(self, text="Save")
@@ -128,62 +119,44 @@ class SettingsPage(tk.Frame):
 
 
 
-
 class TestingPage(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+        v = tk.IntVar()
         label = tk.Label(self, text="Testing", font=LARGE_FONT)
         label.pack(pady=10,padx=10)
-        
-
 
         label = tk.Label(self, text="Select Stepper Motor Acceleration", font=SMALL_FONT)
         label.pack(pady=10,padx=10)
 
 
-        button1 = tk.Checkbutton(self, text="Slow")
+        Rad1 = tk.Radiobutton(self, text="Slow", padx = 20, variable=v,value=4).pack(anchor=tk.W)
                                  #add when using GPIO, command=GPIO21Buttton)
-        button1.pack()
-        
 
-        button2 = tk.Checkbutton(self, text="Medium")
-        button2.pack()
+        Rad2 = tk.Radiobutton(self, text="Medium", padx = 20, variable=v,value=5).pack(anchor=tk.W)
         
-        button3 = tk.Checkbutton(self, text="Fast")
-        button3.pack()
-        
-
+        Rad3 = tk.Radiobutton(self, text="Fast", padx = 20, variable=v,value=6).pack(anchor=tk.W)        
 
         label = tk.Label(self, text="Select DC Motor Acceleration", font=SMALL_FONT)
         label.pack(pady=10,padx=10)
 
 
-        button1 = tk.Checkbutton(self, text="Turn Right")
-        button1.pack()
-
-        button2 = tk.Checkbutton(self, text="Turn Left")
-        button2.pack()
+        Rad1 = tk.Radiobutton(self, text="Turn Right", padx = 20, variable=v,value=7).pack(anchor=tk.W)
+       
+        Rad2 = tk.Radiobutton(self, text="Turn Left",  padx = 20, variable=v,value=8).pack(anchor=tk.W)
         
-
-
         label = tk.Label(self, text="Select Other Motor ", font=SMALL_FONT)
         label.pack(pady=10,padx=10)
 
 
-        button1 = tk.Checkbutton(self, text="Open")
-        button1.pack()
-
-        button2 = tk.Checkbutton(self, text="Close")
-        button2.pack()
+        Rad1 = tk.Radiobutton(self, text="Open", padx = 20, variable=v,value=9).pack(anchor=tk.W)
         
-    
 
-
+        Rad2 = tk.Radiobutton(self, text="Close", padx = 20, variable=v,value=10).pack(anchor=tk.W)
 
         button4 = tk.Button(self, text="Save")
         button4.pack()
-        
 
         button5 = tk.Button(self, text="Back to Home",
                             command=lambda: controller.show_frame(StartPage))
