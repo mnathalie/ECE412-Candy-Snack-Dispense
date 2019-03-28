@@ -90,7 +90,9 @@ class SettingsPage(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        v = tk.IntVar()
+
+        self.radio_variable = tk.StringVar()
+        self.radio_variable.set("0")
         #Label widget
         label = tk.Label(self, text="Setting", font=LARGE_FONT)
         #.pack organizes widget in blocks using x and y axis
@@ -100,13 +102,13 @@ class SettingsPage(tk.Frame):
         label.pack(pady=10,padx=10)
 
         #1st Radio Button
-        Rad1 = tk.Radiobutton(self, text="Small Amount", padx = 20, variable=v,value=1).pack(anchor=tk.W)  
+        Rad1 = tk.Radiobutton(self, text="Small Amount", padx = 20, variable=self.radio_variable,value=1).pack(anchor=tk.W)  
         
         #2nd Radio Button
-        Rad2 = tk.Radiobutton(self, text="Medium Amount", padx = 20, variable=v,value=2).pack(anchor=tk.W)
+        Rad2 = tk.Radiobutton(self, text="Medium Amount", padx = 20, variable=self.radio_variable,value=2).pack(anchor=tk.W)
 
         #3rd Radio Button  
-        Rad3 = tk.Radiobutton(self, text="Large Amount", padx = 20, variable=v,value=3).pack(anchor=tk.W) 
+        Rad3 = tk.Radiobutton(self, text="Large Amount", padx = 20, variable=self.radio_variable,value=3).pack(anchor=tk.W) 
         
         #1st Button check save and do stuff
         button3 = tk.Button(self, text="Save")
@@ -123,37 +125,43 @@ class TestingPage(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        v = tk.IntVar()
+        
         label = tk.Label(self, text="Testing", font=LARGE_FONT)
         label.pack(pady=10,padx=10)
 
         label = tk.Label(self, text="Select Stepper Motor Acceleration", font=SMALL_FONT)
         label.pack(pady=10,padx=10)
 
+
+        self.radio_variable = tk.StringVar()
+        self.radio_variable.set("0")
+
+
+
         #1st Radio Button
-        Rad1 = tk.Radiobutton(self, text="Slow", padx = 20, variable=v,value=4).pack(anchor=tk.W)
+        Rad1 = tk.Radiobutton(self, text="Slow", padx = 20, variable=self.radio_variable,value=4).pack(anchor=tk.W)
                                  #add when using GPIO, command=GPIO21Buttton)
         #2nd Radio Button
-        Rad2 = tk.Radiobutton(self, text="Medium", padx = 20, variable=v,value=5).pack(anchor=tk.W)
+        Rad2 = tk.Radiobutton(self, text="Medium", padx = 20, variable=self.radio_variable,value=5).pack(anchor=tk.W)
         #3rd Radio Button      
-        Rad3 = tk.Radiobutton(self, text="Fast", padx = 20, variable=v,value=6).pack(anchor=tk.W)        
+        Rad3 = tk.Radiobutton(self, text="Fast", padx = 20, variable=self.radio_variable,value=6).pack(anchor=tk.W)        
 
         label = tk.Label(self, text="Select DC Motor Acceleration", font=SMALL_FONT)
         label.pack(pady=10,padx=10)
 
         #1st Radio Button
-        Rad1 = tk.Radiobutton(self, text="Turn Right", padx = 20, variable=v,value=7).pack(anchor=tk.W)
+        Rad1 = tk.Radiobutton(self, text="Turn Right", padx = 20, variable=self.radio_variable,value=7).pack(anchor=tk.W)
         #2nd Radio Button   
-        Rad2 = tk.Radiobutton(self, text="Turn Left",  padx = 20, variable=v,value=8).pack(anchor=tk.W)
+        Rad2 = tk.Radiobutton(self, text="Turn Left",  padx = 20, variable=self.radio_variable,value=8).pack(anchor=tk.W)
         
         label = tk.Label(self, text="Select Other Motor ", font=SMALL_FONT)
         label.pack(pady=10,padx=10)
 
        #1st Radio Button
-        Rad1 = tk.Radiobutton(self, text="Open", padx = 20, variable=v,value=9).pack(anchor=tk.W)
+        Rad1 = tk.Radiobutton(self, text="Open", padx = 20, variable=self.radio_variable,value=9).pack(anchor=tk.W)
         
         #2nd Radio Button
-        Rad2 = tk.Radiobutton(self, text="Close", padx = 20, variable=v,value=10).pack(anchor=tk.W)
+        Rad2 = tk.Radiobutton(self, text="Close", padx = 20, variable=self.radio_variable,value=10).pack(anchor=tk.W)
 
         button4 = tk.Button(self, text="Save")
         button4.pack()
