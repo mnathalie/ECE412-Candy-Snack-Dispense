@@ -45,19 +45,6 @@ class SeaofBTCapp(tk.Tk):
 #bring frame to the top
         frame.tkraise()
 
-#working on this part
-        #GPIO21 = 21
-        #GPIO.setmode(GPIO21, GPIO.OUT)
-        #def GPIO21button():
-          
-        #if GPIO21 == True:
-                #GPIO.output(GPIO21)
-           # if GPIO21 == False:
-                #
-        #else:
-            
-                
- 
         #Main Home Page         
 class StartPage(tk.Frame):
 
