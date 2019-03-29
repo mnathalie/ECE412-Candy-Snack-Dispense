@@ -118,7 +118,7 @@ class SettingsPage(tk.Frame):
         
         #2nd Button when click will take you back to the home page
         #button4 = tk.Button(self, text="Back to Home",
-                            command=lambda: controller.show_frame(StartPage))
+                           # command=lambda: controller.show_frame(StartPage))
         #button4.pack()
 
 
