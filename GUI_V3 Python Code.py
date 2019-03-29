@@ -1,5 +1,6 @@
 	
 #Link: https://docs.python.org/3/library/tkinter.html#a-very-quick-look-at-tcl-tk
+#Look under Coupling Widget Variables
 import tkinter as tk
 #GPIO library Controls for the GPIO Pins
 #import Tkinter as tk 
