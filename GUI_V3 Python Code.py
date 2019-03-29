@@ -1,5 +1,5 @@
 	
-
+#Link: https://docs.python.org/3/library/tkinter.html#a-very-quick-look-at-tcl-tk
 import tkinter as tk
 #GPIO library Controls for the GPIO Pins
 #import Tkinter as tk 
@@ -87,7 +87,7 @@ class SettingsPage(tk.Frame):
     else:
         print("An option must be selected")
 
-        self.option = tk.StringVar()
+        self.option = StringVar()
         
     Rad1 = tk.Radiobutton(self, text="SMALL", value="small", variable=self.option)
     Rad1.pack()
