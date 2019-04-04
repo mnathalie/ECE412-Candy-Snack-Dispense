@@ -72,7 +72,7 @@ class StartPage(tk.Frame):
 
 # SettingsPage class, inheriting from tk.Frame
 class SettingsPage(tk.Frame):
-
+    
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         #self.radio_variable = tk.StringVar()
