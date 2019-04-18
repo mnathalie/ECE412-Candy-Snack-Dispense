@@ -78,7 +78,7 @@ assign IO_A4_i = IO_A4; 	 //[1] of[1:0] stateamount for amount to dispense
 		stateamount[1] = IO_A4; 	 //[1] of[1:0] stateamount for amount to dispense
 		
 		end*/
-always @ (DIPSW[2:0], heartbeat, stateamount[1:0], teststate[2:0], candyflag)
+always @ (DIPSW[2:0], rightservob,leftservob,stepperstep,stateamount[1:0], teststate[2:0], candyflag)
     begin
 		candyflag <= IO_A5_i;			 //assigns input of candyflag
 		teststate[0] <= IO_B4_i;	 	 //input teststate[0] stated in first line
@@ -203,7 +203,7 @@ heartbeat #(.clk_freq (12000000))
         .rst        (rst),
         .heartbeat  (leftservob)
         );
-  heartbeat #(.clk_freq (4000))
+  heartbeat #(.clk_freq (25000))  //100MHz (2* desired frequency) ; desired frequency = 2000;
     inst_step(
         .clk        (clk12M),
         .rst        (rst),
