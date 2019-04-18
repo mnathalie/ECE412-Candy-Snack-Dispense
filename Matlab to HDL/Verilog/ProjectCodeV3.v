@@ -87,7 +87,7 @@ always @ (DIPSW[2:0], heartbeat, stateamount[1:0], teststate[2:0], candyflag)
 		stateamount[0] <= IO_A3_i; 	 //[0] of[1:0] stateamount for amount to dispense
 		stateamount[1] <= IO_A4_i; 	 //[1] of[1:0] stateamount for amount to dispense
 		
-            case (teststate[2:0])        //later changed to state when we can recieve Rasp Pi inputs
+            case (DIPSW[2:0])        //later changed to state when we can recieve Rasp Pi inputs
 				//State 000 servo move fowd
                 3'b000 : begin      
 						 //need to set a pulse/or counter different than heartbeat 
