@@ -8,9 +8,12 @@ module testbench;
 		wire        clk_test;
 		reg clock_test;
 		reg div_o;
-
+//added to instantiate PUR_INST to run clock dividers
+//GSR GSR_INST (.GSR ());
+//PUR PUR_INST (.PUR ());
 //and
 //assign rst <= ~rstn;	
+
 	
 OSCH CLOCK_TEST(
 	.STDBY(1'b0), // 0=Enabled, 1=Disabled
@@ -28,8 +31,11 @@ initial
 				$display("hello, clock testing");
 				#1000000000 // 1s
 				#1000000000 // 1s
-		
-		
+				#1000000000 // 1s
+				#1000000000 // 1s
+				#1000000000 // 1s
+				#1000000000 // 1s
+				
 		$finish;
 	end
 
