@@ -1,22 +1,25 @@
 //added new clock for clkdiv for pwm signal to see if works
+//the purpose of the program is to take in inputs from the raspberry pi to give movement to motors.
+
 module project_module (       // inputs
         input   wire        clk_x1,     	// 12M clock from FTDI/X1 crystal
         input   wire        rstn,       	// from SW1 pushbutton
         input   wire  [3:0] DIPSW,      	// from SW2 DIP switches
-		input     		IO_B4,			//[0] of[2:0] teststate for 7 states from rasp pi
-		input     		IO_B5,			//[1]
-		input 	 		IO_B6,			//[2]
+		input   wire  		IO_B4,			//[0] of[2:0] teststate for 7 states from rasp pi
+		input   wire 		IO_B5,			//[1]
+		input 	wire 		IO_B6,			//[2]
 		
-		input 	 		IO_A3,			//[0] of[1:0] stateamount for amount to dispense
-		input    		IO_A4,			//[1]
-		input     		IO_A5, 			//candyflag indicates when it's time to dispense
+		input 	wire 		IO_A3,			//[0] of[1:0] stateamount for amount to dispense
+		input   wire 		IO_A4,			//[1]
+		input   wire  		IO_A5, 			//candyflag indicates when it's time to dispense
 		
 		output	wire  		IO_B7, 			// signalrecieved = signal for when new state was recieved
 		output  wire 		IO_D9, 			// stepperstep
 		output  wire 		IO_A10,			// stepperdir,
 		output  wire  		IO_B9,			// [0] of [1:0] dcmotor,
 		output  wire 		IO_F7,			// [1]
-		output  wire        IO_C5			// servopwm
+		output  wire        IO_C5,			// servopwm
+		output  wire 		IO_D6			// handshake to give to raspberry pi
 		
 		);
 		
@@ -27,16 +30,16 @@ wire          clk12M;         // 12MHz logic clock
 wire          rst;            //	
 wire 		  clk_test;
 //moved here because it wasn't working earlier, can change back later
-wire IO_A5_i;			 //assigns input of candyflag
-wire IO_B4_i;	 	 //input teststate[0] stated in first line
-wire IO_B5_i;	 	 //input teststate[1] stated in first line
-wire IO_B6_i;	 	 //input teststate[2] stated in first line
-wire IO_A3_i; 	 //[0] of[1:0] stateamount for amount to dispense
-wire IO_A4_i; 	 //[1] of[1:0] stateamount for amount to dispense
+wire IO_A5_i;		//assigns input of candyflag
+wire IO_B4_i;	 	//input teststate[0] stated in first line
+wire IO_B5_i;	 	//input teststate[1] stated in first line
+wire IO_B6_i;	 	//input teststate[2] stated in first line
+wire IO_A3_i; 	 	//[0] of[1:0] stateamount for amount to dispense
+wire IO_A4_i; 	 	//[1] of[1:0] stateamount for amount to dispense
 		
 reg clock_test;
 //
-//reg (always), 6 in all
+//reg (always)
 reg [2:0] teststate;		//3 inputs total
 reg [1:0] stateamount;		//2 inputs total
 reg candyflag;	//indicates when it's time to dispense 
@@ -46,39 +49,28 @@ reg stepperstep;
 reg stepperdir;
 reg [1:0] dcmotor;
 reg servopwm; 
+reg handshake; //for rasp pi
 //counter
 reg countstep = 0;
+//these are regs right now so that it compiles. Will be used for PWM
+reg rightservob; // 12500000 / 12500 to get 1000Hz, equals 1ms (-90)
+reg leftservob;  // 12500000 / 25000 to get 500Hz, equals 2ms (90)
+//reg zeroservob;  // 12500000 / 18750 to get 666.66, equals 1.5 (0)
+reg stepb;
 
-//beats changed to using heartbeat.v module instance 
-//reg rightservob = heartbeat / 12500; // 12500000 / 12500 to get 1000Hz, equals 1ms (-90)
-//reg leftservob = heartbeat / 25000;  // 12500000 / 25000 to get 500Hz, equals 2ms (90)
-//reg zeroservob = heartbeat / 18750;  // 12500000 / 18750 to get 666.66, equals 1.5 (0)
-//reg stepb = heartbeat / 6250; 	     //12500000 / 6250 to get 2000Hz, equals 500microseconds
-
-//assign clock_test = clk_test;
 //and
 assign rst = ~rstn;
 assign clk12M = DIPSW[3] ? osc_clk : clk_x1;    // select clock source int/ext
 //
 //inputs
-assign IO_A5_i = IO_A5;			 //assigns input of candyflag
+assign IO_A5_i = IO_A5;		 //assigns input of candyflag
 assign IO_B4_i = IO_B4;	 	 //input teststate[0] stated in first line
 assign IO_B5_i = IO_B5;	 	 //input teststate[1] stated in first line
 assign IO_B6_i = IO_B6;	 	 //input teststate[2] stated in first line
 assign IO_A3_i = IO_A3; 	 //[0] of[1:0] stateamount for amount to dispense
 assign IO_A4_i = IO_A4; 	 //[1] of[1:0] stateamount for amount to dispense
 
-//
-/*always @(negedge clk_x1)
-	begin
-		candyflag = IO_A5;			 //assigns input of candyflag
-		teststate[0] = IO_B4;	 	 //input teststate[0] stated in first line
-		teststate[1] = IO_B5;	 	 //input teststate[1] stated in first line
-		teststate[2] = IO_B6;	 	 //input teststate[2] stated in first line
-		stateamount[0] = IO_A3; 	 //[0] of[1:0] stateamount for amount to dispense
-		stateamount[1] = IO_A4; 	 //[1] of[1:0] stateamount for amount to dispense
-		
-		end*/
+
 always @ (DIPSW[2:0], rightservob,leftservob,stepperstep,stateamount[1:0], teststate[2:0], candyflag)
     begin
 		candyflag <= IO_A5_i;			 //assigns input of candyflag
@@ -140,6 +132,7 @@ always @ (DIPSW[2:0], rightservob,leftservob,stepperstep,stateamount[1:0], tests
                     end
 				
            endcase
+		   //Added handshake send input to raspberrypi to confirms that candyflag was set 
 		   case(candyflag)
 			1'b1:
 				begin
@@ -165,11 +158,13 @@ always @ (DIPSW[2:0], rightservob,leftservob,stepperstep,stateamount[1:0], tests
 								//send signal to dcmotor pin
 								end
 					endcase
+					handshake <= 1'b1;		//send output to raspberry pi
 				end
-				default: 
-						begin
-						//nothing
-						end
+			1'b0:
+				begin
+					handshake <= 0'b1;		//send output to raspberry pi
+				end
+
 		    endcase
    end	
 	
@@ -191,7 +186,8 @@ OSCH OSCH_inst(
     .SEDSTDBY()
 
 };
-*/
+///below are to be replaced later with either the clockdivisionforPWM.v modules to use
+//PWM signals
 heartbeat #(.clk_freq (12000000))
     heartbeat_inst (
         .clk        (clk12M),
@@ -224,7 +220,7 @@ kitcar #(.clk_freq (12000000))
         .LED_array  (LED_array)
         );
 
-
+*/
 
 //-------------------------------------//
 //-------- output assignments  --------//
@@ -237,5 +233,5 @@ assign IO_A10 = stepperdir;
 assign IO_B9 = dcmotor[0];
 assign IO_F7 = dcmotor[1];
 assign IO_C5 = servopwm; 
-	
+assign IO_D6 = handshake;	
 endmodule 
