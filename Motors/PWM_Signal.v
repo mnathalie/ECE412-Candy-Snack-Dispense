@@ -1,17 +1,52 @@
-`timescale 1ns / 1ps
+`timescale 1 ns / 1ps
 
-
-module top( input clk, output led );
-	
-	//create a simple counter
-	
-	reg [7:0] counter = 0;
-	
-always@(posedge clk) begin
-	if (counter < 100) counter <= counter + 1; //count until 100
-	else counter <= 0;
-end
-
-assign led = (counter < 20 ) ? 1:0; //assign led to 1 if counter value is less than 
-endmodule 
+module PWM_generation(clk,reset,rise,fall,clk_out);
+input wire clk;
+input wire reset;
+output wire clk_out;
+input wire [3:0] rise; 
+input wire [3:0] fall;
+reg [3:0] count, count_on, count_off;
+reg  pos_or_neg;
+ 
+ 
+always @(posedge clk, negedge reset) begin
+    if(~reset) begin
+ 
+		count<= 0;
+		count <= 0;
+        pos_or_neg <=1;
+ 
+		end 
+	else  if ( (pos_or_neg ==1) )
+	begin
+	if ((count == count_on-1) )
+		begin 
+		count <=0;
+		pos_or_neg <=0;  	  
+		end
+	else 
+	count <= count+1;
+	end
+	else  if ( (pos_or_neg ==0) )
+	begin
+	if ((count == count_off-1) )
+		begin 
+		count <=0;
+		pos_or_neg <=1;  	  
+		end
+	else 
+	count <= count+1;
+	end
+end	
+ 
+always @(rise, fall)
+begin
+count_on <= rise;
+count_off <= fall;	
+end	
+ 
+assign clk_out = pos_or_neg;
+ 
+endmodule
 
