@@ -1,53 +1,35 @@
 `timescale 1 ns / 1 ps
 module clock_division(
-	input   wire        rstn,
-	input   wire        clock_test,
-	output	reg 		clock_div_o
-	);
+	input   wire        rst,
+	input   wire        clk,
+	output	clock_div_o
+	); 
 
-reg  clk_test_i;
-reg  clk_test_i2;
-reg  clk_test_i3;
-wire  divide_o;
-wire  divide_o2;
-wire  divide_o3;
-wire  dud;
-wire  alignwd;
-reg  [26:0] total_output;
-always@(posedge clock_test or posedge rstn)
+parameter width = 2;
+parameter N = 2;	
+reg [width:0] clk_div_counter;
+//wire [width:0] next;
+reg clock_tracker;
+
+always @(posedge clk)
 	begin
-		clk_test_i = clock_test;
-		clk_test_i2 = clk_test_i;
-		clk_test_i3 = clk_test_i2;
-		clock_div_o	= divide_o3;
-		//total_output = divide_o3;
-	end
-// Clock Divider
-defparam CLOCKDIV_TEST.DIV = "4.0";	  
-defparam CLOCKDIV_TEST2.DIV = "4.0";
-defparam CLOCKDIV_TEST3.DIV = "4.0";
-
-CLKDIVC CLOCKDIV_TEST (.CLKI(clk_test_i),
-	.RST(rstn),
-	.ALIGNWD(alignwd),
-	.CDIV1(dud),
-	.CDIVX(divide_o)
-);	
-CLKDIVC CLOCKDIV_TEST2 (.CLKI(clk_test_i2),
-	.RST(rstn),
-	.ALIGNWD(alignwd),
-	.CDIV1(dud),
-	.CDIVX(divide_o2)
-);
-CLKDIVC CLOCKDIV_TEST3 (.CLKI(clk_test_i3),
-	.RST(rstn),
-	.ALIGNWD(alignwd),
-	.CDIV1(dud),
-	.CDIVX(divide_o3)
-);
-//this should leave the Hz to 31K
-
-//assign clock_div_o = total_output;
-
+		if(rst)
+			begin
+				clk_div_counter = 0;
+				clock_tracker <= 1'b0;  
+			end
+		else if( clk_div_counter == N)
+			begin
+				clk_div_counter <= 0;
+				clock_tracker <= ~clock_tracker;
+			end	
+		else
+			begin
+				clock_tracker <= 1'b0;
+				clk_div_counter = clk_div_counter + 1;
+			end
+	 end			
+	 
+assign clock_div_o = clock_tracker;
 
 endmodule	
