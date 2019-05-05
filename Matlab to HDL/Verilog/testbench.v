@@ -1,4 +1,4 @@
-`timescale 1 ms / 1 us
+`timescale 1 ms / 1 ps
 
 module testbench;
         wire        clk_x1;     	// 12M clock from FTDI/X1 crystal
@@ -17,33 +17,35 @@ module testbench;
 		wire  		IO_B9;			// [0] of [1:0] dcmotor;
 		wire 		IO_F7;			// [1]
 		wire        IO_C5;			// servopwm
-		wire 		clock_tst;
+		wire 		clock_tst_step;
+		wire 		clock_DC;
+		wire 		clock_DCSLOW;
 project_module DUT( .rstn(rstn),.DIPSW(DIPSW),.IO_B4(IO_B4),.IO_B5(IO_B5),.IO_B6(IO_B6),
 					.IO_A3(IO_A3),.IO_A4(IO_A4),.IO_A5(IO_A5),.IO_B7(IO_B7),.IO_D9(IO_D9),.IO_A10(IO_A10),
-					.IO_B9(IO_B9),.IO_F7(IO_F7),.clock_test(clock_tst)
+					.IO_B9(IO_B9),.IO_F7(IO_F7),.clock_test_step(clock_tst_step), .clock_test_DC(clock_DC),.clock_test_DCSLOW(clock_DCSLOW)
 				   );
 				   
 	initial
 	begin
-		#5 rstn = 1'b1;	
-		#20 rstn = 1'b0;
+		#5 rstn = 1'b0;	
+		#20 rstn = 1'b1;
 		#100 // 1s
 		DIPSW[2:0] = 3'b000;
-		#100000 // 1s
+		#10000 // 1s
 		DIPSW[2:0] = 3'b001;
-		#100000 // 1s
+		#10000 // 1s
 		DIPSW[2:0] = 3'b010;
-		#100000 // 1s
+		#10000 // 1s
 		DIPSW[2:0] = 3'b011;
-		#100000 // 1s
+		#10000 // 1s
 		DIPSW[2:0] = 3'b100;
-		#900000// 1s
+		#10000// 1s
 		DIPSW[2:0] = 3'b101;
-		#100000 // 1s
+		#10000 // 1s
 		DIPSW[2:0] = 3'b110;
-		#100000 // 1s
+		#10000 // 1s
 		DIPSW[2:0] = 3'b111;
-		#900000 // 100000s
+		#90000 // 100000s
 		$finish;
 	end
 	

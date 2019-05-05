@@ -20,7 +20,9 @@ module project_module (       // inputs
 		output  wire 		IO_F7,			// [1]
 		output  wire        IO_C5,			// servopwm
 		output  wire 		IO_D6,			// handshake to give to raspberry pi
-		output  wire 		clock_test	    //makes sure we have a beat
+		output  wire 		clock_test_step,	    //makes sure we have a beat
+		output	wire		clock_test_DC,
+		output	wire		clock_test_DCSLOW
 		);
 		
 
@@ -57,7 +59,10 @@ reg rightservob; // 12500000 / 12500 to get 1000Hz, equals 1ms (-90)
 reg leftservob;  // 12500000 / 25000 to get 500Hz, equals 2ms (90)
 //reg zeroservob;  // 12500000 / 18750 to get 666.66, equals 1.5 (0)
 wire stepb;
-
+wire stepDC; //clock wire for DC, output of ~27733Hz ; med/fast
+wire stepDCslow; 
+wire fixDCslow;
+wire fixDC;
 //and
 assign rst = ~rstn;
 //assign clk12M = DIPSW[3] ? osc_clk : clk_x1;    // select clock source int/ext
@@ -81,57 +86,61 @@ always @ (DIPSW[2:0],stepperstep,stateamount[1:0], teststate[2:0], candyflag, st
 		stateamount[1] <= IO_A4_i; 	 //[1] of[1:0] stateamount for amount to dispense
 		
             case (DIPSW[2:0])        //later changed to state when we can recieve Rasp Pi inputs
-				//State 000 servo move fowd
-                3'b000 : begin      
-						 //need to set a pulse/or counter different than heartbeat 
-						// servopwm <= rightservob ? 8'b00000001 : 8'b00000000;
-                         end
 
-				3'b001 : begin      //move back
-                       //send signal to servomotor
-						//servopwm <= leftservob ? 8'b00000001 : 8'b00000000;
+				3'b001 : begin 
+						  //signal to stepper motor
+						  countstep = 0;
+						  //stepper motor change dir right
+						  //signal to stepper motor only
+						  stepperdir <= 1'b0;
+						  if(countstep < 200)
+							begin
+								stepperstep <= stepb ? 1'b1 : 1'b0;	//reduce hz to reduce speed
+								countstep <= countstep + 1;
+							end
                        end
-				3'b010 : begin      //stepper motor change dir left
-						//signal to stepper motor only
-						stepperdir <= 1'b1;
+				3'b010 : begin 
+						  //signal to stepper motor
+						  countstep = 0;
+						  //stepper motor change dir right
+						  //signal to stepper motor only
+						  stepperdir <= 1'b1;
+						  if(countstep < 200)
+							begin
+								stepperstep <= stepb ? 1'b1 : 1'b0;	//reduce hz to reduce speed
+								countstep <= countstep + 1;
+							end
 					   end
-				3'b011 : begin      //stepper motor change dir right
-						//signal to stepper motor only
-						stepperdir <= 1'b0;
+				3'b011 : begin 
+						  //stepper motor change fast 
+						  //signal to stepper motor
+						  countstep = 0;
+						  stepperdir <= 1'b0;
+						  if(countstep < 400)
+							begin
+								stepperstep <= stepb ? 1'b1 : 1'b0;	//reduce hz to reduce speed							
+								countstep <= countstep + 1;
+							end
 						end
-				3'b100 : begin     //stepper motor change slow 
-					  //signal to stepper motor
-					  countstep = 0;
-					  //stepper motor change dir right
-					  //signal to stepper motor only
-					  stepperdir <= 1'b0;
-					  if(countstep < 200)
-						begin
-							stepperstep <= stepb ? 1'b1 : 1'b0;	//reduce hz to reduce speed
-							countstep <= countstep + 1;
-						end
-                    end
-				3'b101 : begin     //stepper motor change fast 
-					  //signal to stepper motor
-					  countstep = 0;
-					  if(countstep < 400)
-						begin
-							stepperstep <= stepb ? 1'b1 : 1'b0;	//reduce hz to reduce speed							
-							countstep <= countstep + 1;
-						end
-                    end					
-				3'b110 : begin     //signal to left pwm to DC motor
-								   //add pulse?
+				3'b100 : begin //signal to left pwm to DC motor
 					   dcmotor[0] <= 1'b1;
-					   dcmotor[1] <= 1'b0;
-                    end	
-				3'b111 : begin     //signal to right pwm to DC motor
+					   dcmotor[1] <= stepDCslow ? 1'b1 : 1'b0 ;
+                    end
+				3'b101 : begin 
+					   //signal to right pwm to DC motor
 					   dcmotor[0] <= 1'b0;
-					   dcmotor[1] <= 1'b1;
+					   dcmotor[1] <= stepDCslow ? 1'b1 : 1'b0 ;
+                    end					
+				3'b110 : begin
+					   //signal to right pwm to DC motor
+					   dcmotor[0] <= 1'b0;
+					   dcmotor[1] <= stepDC ? 1'b1 : 1'b0 ;
+                    end	
+				3'b111 : begin
                     end
                 default : begin     // error?
                       
-				
+						//stop all motors
                     end
 				
            endcase
@@ -193,12 +202,29 @@ clock_division inst_step (
         .rst        (rst),
         .clock_div_o (stepb)
 		);
-		/*
-clock_division inst_step2 (
+defparam inst_DC.width = "7";
+defparam inst_DC.N = "60";		
+clock_division inst_DC (
         .clk        (osc_clk),
         .rst        (rst),
-        .clock_div_o (stepb)
-		);*/		
+        .clock_div_o (fixDC)
+		);	
+defparam inst_DCSLOW.width = "7";
+defparam inst_DCSLOW.N = "90";		
+clock_division inst_DCSLOW (
+        .clk        (osc_clk),
+        .rst        (rst),
+        .clock_div_o (fixDCslow)
+		);	
+PWM_DC inst_DCSLOW_CLK (
+		.clk (fixDCslow),
+		.clk_out (stepDCslow)
+
+);
+PWM_DC inst_DC_CLK (
+		.clk (fixDC),
+		.clk_out (stepDC)
+);
 /* PWM_generation inst_dc_pwm(
         .clk        (osc_clk),
         .reset        (rst),
@@ -206,18 +232,7 @@ clock_division inst_step2 (
 		.fall		(fall),
 		.clk_out	(clock_dc)
         );
-  heartbeat #(.clk_freq (1000))
-    inst_left (
-        .clk        (clk12M),
-        .rst        (rst),
-        .heartbeat  (leftservob)
-        );
-  heartbeat #(.clk_freq (25000))  //100MHz (2* desired frequency) ; desired frequency = 2000;
-    inst_step(
-        .clk        (clk12M),
-        .rst        (rst),
-        .heartbeat  (stepb)
-        ); 		
+	
 */
 //-------------------------------------//
 //-------- output assignments  --------//
@@ -231,5 +246,7 @@ assign IO_B9 = dcmotor[0];
 assign IO_F7 = dcmotor[1];
 assign IO_C5 = servopwm; 
 assign IO_D6 = handshake;
-assign clock_test = stepb;
+assign clock_test_step = stepb;
+assign clock_test_DC = stepDC;
+assign clock_test_DCSLOW = stepDCslow;
 endmodule 

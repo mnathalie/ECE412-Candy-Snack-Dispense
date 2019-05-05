@@ -27,8 +27,8 @@ clock_division DUT(.rst(rst), .clk(clk_test), .clock_div_o(div_wire_o));
 initial	  
 
 	begin
-               #50 rst = 1'b0;
-               #1000 rst = 1'b1;
+               #50 rst = 1'b1;
+               #1000 rst = 1'b0;
 			   #1000000000; // 1s
 			   #1000000000; // 1s
 

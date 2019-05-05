@@ -21,7 +21,7 @@ always @(posedge clk)
 		else if( clk_div_counter == N)
 			begin
 				clk_div_counter <= 0;
-				clock_tracker <= ~clock_tracker;
+				clock_tracker <= 1'b1;
 			end	
 		else
 			begin
