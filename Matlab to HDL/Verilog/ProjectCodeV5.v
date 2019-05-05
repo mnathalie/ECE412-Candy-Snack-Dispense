@@ -20,7 +20,7 @@ module project_module (       // inputs
 		output  wire 		IO_F7,			// [1]
 		output  wire        IO_C5,			// servopwm
 		output  wire 		IO_D6,			// handshake to give to raspberry pi
-		output  wire 		clock_test_step,	    //makes sure we have a beat
+		output  wire 		clock_test_step,	    //makes sure we have a beat, good for testing on simulation
 		output	wire		clock_test_DC,
 		output	wire		clock_test_DCSLOW
 		);
@@ -123,19 +123,19 @@ always @ (DIPSW[2:0],stepperstep,stateamount[1:0], teststate[2:0], candyflag, st
 							end
 						end
 				3'b100 : begin //signal to left pwm to DC motor
-					   dcmotor[0] <= 1'b1;
-					   dcmotor[1] <= stepDCslow ? 1'b1 : 1'b0 ;
+							   dcmotor[0] <= 1'b1;
+							   dcmotor[1] <= stepDCslow ? 1'b1 : 1'b0 ;
                     end
 				3'b101 : begin 
-					   //signal to right pwm to DC motor
-					   dcmotor[0] <= 1'b0;
-					   dcmotor[1] <= stepDCslow ? 1'b1 : 1'b0 ;
+							   //signal to right pwm to DC motor
+							   dcmotor[0] <= 1'b0;
+							   dcmotor[1] <= stepDCslow ? 1'b1 : 1'b0 ;
                     end					
 				3'b110 : begin
-					   //signal to right pwm to DC motor
-					   dcmotor[0] <= 1'b0;
-					   dcmotor[1] <= stepDC ? 1'b1 : 1'b0 ;
-                    end	
+							   //signal to right pwm to DC motor
+							   dcmotor[0] <= 1'b0;
+							   dcmotor[1] <= stepDC ? 1'b1 : 1'b0 ;
+						end	
 				3'b111 : begin
                     end
                 default : begin     // error?
