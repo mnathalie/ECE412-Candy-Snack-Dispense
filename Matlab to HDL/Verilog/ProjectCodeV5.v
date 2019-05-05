@@ -18,7 +18,7 @@ module project_module (       // inputs
 		output  wire 		IO_A10,			// stepperdir,
 		output  wire  		IO_B9,			// [0] of [1:0] dcmotor,
 		output  wire 		IO_F7,			// [1]
-		output  wire        IO_C5,			// servopwm
+		output  wire        IO_C5,			// [2]
 		output  wire 		IO_D6,			// handshake to give to raspberry pi
 		output  wire 		clock_test_step,	    //makes sure we have a beat, good for testing on simulation
 		output	wire		clock_test_DC,
@@ -28,7 +28,7 @@ module project_module (       // inputs
 
 // wires (assigns)
 wire          osc_clk;        // Internal OSCILLATOR clock
-wire          clk12M;         // 12MHz logic clock
+
 wire          rst;            //	
 wire 		  clk_test;
 //moved here because it wasn't working earlier, can change back later
@@ -49,15 +49,12 @@ reg candyflag;	//indicates when it's time to dispense
 reg signalrecieved; //signal for when new state was recieved
 reg stepperstep;	
 reg stepperdir;
-reg [1:0] dcmotor;
+reg [2:0] dcmotor;
 reg servopwm; 
 reg handshake = 1'b0; //for rasp pi
 //counter
 reg countstep = 0;
-//these are regs right now so that it compiles. Will be used for PWM
-reg rightservob; // 12500000 / 12500 to get 1000Hz, equals 1ms (-90)
-reg leftservob;  // 12500000 / 25000 to get 500Hz, equals 2ms (90)
-//reg zeroservob;  // 12500000 / 18750 to get 666.66, equals 1.5 (0)
+//for clocks
 wire stepb;
 wire stepDC; //clock wire for DC, output of ~27733Hz ; med/fast
 wire stepDCslow; 
@@ -65,8 +62,7 @@ wire fixDCslow;
 wire fixDC;
 //and
 assign rst = ~rstn;
-//assign clk12M = DIPSW[3] ? osc_clk : clk_x1;    // select clock source int/ext
-//
+
 //inputs
 assign IO_A5_i = IO_A5;		 //assigns input of candyflag
 assign IO_B4_i = IO_B4;	 	 //input teststate[0] stated in first line
@@ -123,18 +119,21 @@ always @ (DIPSW[2:0],stepperstep,stateamount[1:0], teststate[2:0], candyflag, st
 							end
 						end
 				3'b100 : begin //signal to left pwm to DC motor
-							   dcmotor[0] <= 1'b1;
-							   dcmotor[1] <= stepDCslow ? 1'b1 : 1'b0 ;
+							   dcmotor[0] <= 1'b0;
+							   dcmotor[1] <= 1'b1;
+							   dcmotor[2] <= stepDCslow ? 1'b1 : 1'b0 ;
                     end
 				3'b101 : begin 
 							   //signal to right pwm to DC motor
 							   dcmotor[0] <= 1'b0;
-							   dcmotor[1] <= stepDCslow ? 1'b1 : 1'b0 ;
+							   dcmotor[1] <= 1'b1;
+							   dcmotor[2] <= stepDCslow ? 1'b1 : 1'b0 ;
                     end					
 				3'b110 : begin
 							   //signal to right pwm to DC motor
-							   dcmotor[0] <= 1'b0;
-							   dcmotor[1] <= stepDC ? 1'b1 : 1'b0 ;
+							   dcmotor[0] <= 1'b1;
+							   dcmotor[1] <= 1'b0;
+							   dcmotor[2] <= stepDC ? 1'b1 : 1'b0 ;
 						end	
 				3'b111 : begin
                     end
@@ -244,7 +243,7 @@ assign IO_D9 = stepperstep;
 assign IO_A10 = stepperdir;
 assign IO_B9 = dcmotor[0];
 assign IO_F7 = dcmotor[1];
-assign IO_C5 = servopwm; 
+assign IO_C5 = dcmotor[2]; 
 assign IO_D6 = handshake;
 assign clock_test_step = stepb;
 assign clock_test_DC = stepDC;
