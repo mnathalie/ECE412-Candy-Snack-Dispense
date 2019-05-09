@@ -16,9 +16,9 @@ module project_module (       // inputs
 		output	wire  		IO_B7, 			// signalrecieved = signal for when new state was recieved
 		output  wire 		IO_D9, 			// stepperstep
 		output  wire 		IO_A10,			// stepperdir,
-		output  wire  		IO_B9,			// [0] of [1:0] dcmotor,
-		output  wire 		IO_F7,			// [1]
-		output  wire        IO_C5,			// [2]
+		output  wire  		IO_B9,			// [0] of [1:0] dcmotor, direction
+		output  wire 		IO_F7,			// [1] controls direction
+		output  wire        IO_C4,			// [2] controls speed, pwm
 		output  wire 		IO_D6,			// handshake to give to raspberry pi
 		output  wire 		clock_test_step,	    //makes sure we have a beat, good for testing on simulation
 		output	wire		clock_test_DC,
@@ -56,10 +56,14 @@ reg handshake = 1'b0; //for rasp pi
 reg countstep = 0;
 //for clocks
 wire stepb;
+wire stepbslow;
 wire stepDC; //clock wire for DC, output of ~27733Hz ; med/fast
-wire stepDCslow; 
+wire stepDCslow;wire stepDCfast;
+
 wire fixDCslow;
 wire fixDC;
+wire fixstep;
+
 //and
 assign rst = ~rstn;
 
@@ -74,71 +78,57 @@ assign IO_A4_i = IO_A4; 	 //[1] of[1:0] stateamount for amount to dispense
 
 always @ (DIPSW[2:0],stepperstep,stateamount[1:0], teststate[2:0], candyflag, stepb)
     begin
-		candyflag <= IO_A5_i;			 //assigns input of candyflag
-		teststate[0] <= IO_B4_i;	 	 //input teststate[0] stated in first line
-		teststate[1] <= IO_B5_i;	 	 //input teststate[1] stated in first line
-		teststate[2] <= IO_B6_i;	 	 //input teststate[2] stated in first line
-		stateamount[0] <= IO_A3_i; 	 //[0] of[1:0] stateamount for amount to dispense
-		stateamount[1] <= IO_A4_i; 	 //[1] of[1:0] stateamount for amount to dispense
+		candyflag = IO_A5_i;			 //assigns input of candyflag
+		teststate[0] = IO_B4_i;	 	 //input teststate[0] stated in first line
+		teststate[1] = IO_B5_i;	 	 //input teststate[1] stated in first line
+		teststate[2] = IO_B6_i;	 	 //input teststate[2] stated in first line
+		stateamount[0] = IO_A3_i; 	 //[0] of[1:0] stateamount for amount to dispense
+		stateamount[1] = IO_A4_i; 	 //[1] of[1:0] stateamount for amount to dispense
 		
             case (DIPSW[2:0])        //later changed to state when we can recieve Rasp Pi inputs
-
+			
 				3'b001 : begin 
 						  //signal to stepper motor
-						  countstep = 0;
-						  //stepper motor change dir right
-						  //signal to stepper motor only
-						  stepperdir <= 1'b0;
-						  if(countstep < 200)
-							begin
-								stepperstep <= stepb ? 1'b1 : 1'b0;	//reduce hz to reduce speed
-								countstep <= countstep + 1;
-							end
-                       end
+				  		  stepperstep = stepbslow;  //reduce hz to reduce speed
+						 end
 				3'b010 : begin 
-						  //signal to stepper motor
-						  countstep = 0;
-						  //stepper motor change dir right
+						  //signal to stepper motor						  //stepper motor change dir right
 						  //signal to stepper motor only
-						  stepperdir <= 1'b1;
-						  if(countstep < 200)
-							begin
-								stepperstep <= stepb ? 1'b1 : 1'b0;	//reduce hz to reduce speed
-								countstep <= countstep + 1;
-							end
-					   end
+						  stepperdir = 1'b1;
+  						  stepperstep = stepb;  //reduce hz to reduce speed
+									
+						
+						end
 				3'b011 : begin 
 						  //stepper motor change fast 
 						  //signal to stepper motor
-						  countstep = 0;
-						  stepperdir <= 1'b0;
-						  if(countstep < 400)
-							begin
-								stepperstep <= stepb ? 1'b1 : 1'b0;	//reduce hz to reduce speed							
-								countstep <= countstep + 1;
-							end
+						  //stepperdir <= 1'b0; // dont need to step again because of default
+  						  stepperstep = stepb;  //reduce hz to reduce speed
 						end
 				3'b100 : begin //signal to left pwm to DC motor
-							   dcmotor[0] <= 1'b0;
-							   dcmotor[1] <= 1'b1;
-							   dcmotor[2] <= stepDCslow ? 1'b1 : 1'b0 ;
+							  // dcmotor[0] <= 1'b0; default
+							  // dcmotor[1] <= 1'b1;
+							   dcmotor[2] = stepDCslow ;//? 1'b1 : 1'b0 ;
                     end
 				3'b101 : begin 
 							   //signal to right pwm to DC motor
-							   dcmotor[0] <= 1'b0;
-							   dcmotor[1] <= 1'b1;
-							   dcmotor[2] <= stepDCslow ? 1'b1 : 1'b0 ;
+							   dcmotor[0] = 1'b1;
+							   dcmotor[1] = 1'b0;
+							   dcmotor[2] = stepDC; // ? 1'b1 : 1'b0 ;
                     end					
 				3'b110 : begin
 							   //signal to right pwm to DC motor
-							   dcmotor[0] <= 1'b1;
-							   dcmotor[1] <= 1'b0;
-							   dcmotor[2] <= stepDC ? 1'b1 : 1'b0 ;
+						//	   dcmotor[0] <= 1'b0; //default
+						//	   dcmotor[1] <= 1'b1;
+							   dcmotor[2] = stepDCfast ;//? 1'b1 : 1'b0 ;
 						end	
-				3'b111 : begin
-                    end
+
                 default : begin     // error?
-                      
+                        stepperstep = 1'b0;
+						stepperdir = 1'b0;
+						dcmotor[0] = 1'b0;
+					    dcmotor[1] = 1'b1;
+						dcmotor[2] = 1'b0;
 						//stop all motors
                     end
 				
@@ -194,13 +184,28 @@ OSCH OSCH_inst(
     );
 //clock_division 
 //signal for stepper
-defparam inst_step.width = "15";
-defparam inst_step.N = "13000";
-clock_division inst_step (
+defparam inst_fixstep.width = "9";
+defparam inst_fixstep.N = "400";
+clock_division inst_fixstep (
         .clk        (osc_clk),
         .rst        (rst),
-        .clock_div_o (stepb)
+        .clock_div_o (fixstep)	//5200Hz
 		);
+defparam inst_stepslow.width = "6";
+defparam inst_stepslow.N = "32";
+clock_division inst_stepslow (
+        .clk        (osc_clk),
+        .rst        (rst),
+        .clock_div_o (stepbslow)	//162Hz
+		);
+defparam inst_step.width = "6";
+defparam inst_step.N = "22";
+clock_division inst_step(
+        .clk        (osc_clk),
+        .rst        (rst),
+        .clock_div_o (stepb)	//236 Hz
+		);
+			
 defparam inst_DC.width = "7";
 defparam inst_DC.N = "60";		
 clock_division inst_DC (
@@ -215,7 +220,8 @@ clock_division inst_DCSLOW (
         .rst        (rst),
         .clock_div_o (fixDCslow)
 		);	
-PWM_DC inst_DCSLOW_CLK (
+//defparam inst_DCSLOW_CLK.rise = "25";
+PWM_DC #(.rise(25)) inst_DCSLOW_CLK (
 		.clk (fixDCslow),
 		.clk_out (stepDCslow)
 
@@ -223,6 +229,11 @@ PWM_DC inst_DCSLOW_CLK (
 PWM_DC inst_DC_CLK (
 		.clk (fixDC),
 		.clk_out (stepDC)
+);
+//defparam inst_DCFAST_CLK.rise = "75";
+PWM_DC #(.rise(75)) inst_DCFAST_CLK (
+		.clk (fixDC),
+		.clk_out (stepDCfast)
 );
 /* PWM_generation inst_dc_pwm(
         .clk        (osc_clk),
@@ -243,7 +254,7 @@ assign IO_D9 = stepperstep;
 assign IO_A10 = stepperdir;
 assign IO_B9 = dcmotor[0];
 assign IO_F7 = dcmotor[1];
-assign IO_C5 = dcmotor[2]; 
+assign IO_C4 = dcmotor[2]; 
 assign IO_D6 = handshake;
 assign clock_test_step = stepb;
 assign clock_test_DC = stepDC;
