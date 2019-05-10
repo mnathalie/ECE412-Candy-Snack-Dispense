@@ -21,7 +21,7 @@ module testbench;
 		wire 		clock_DC;
 		wire 		clock_DCSLOW;
 project_module DUT( .rstn(rstn),.DIPSW(DIPSW),
-					.IO_B7(IO_B7),.IO_D9(IO_D9),.IO_A10(IO_A10),
+					.IO_D9(IO_D9),.IO_A10(IO_A10),
 					.IO_B9(IO_B9),.IO_F7(IO_F7), .IO_C4(IO_C4), .clock_test_DC(clock_DC),.clock_test_DCSLOW(clock_DCSLOW)
 				   );
 				   
