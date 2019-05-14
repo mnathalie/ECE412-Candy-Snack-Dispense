@@ -57,6 +57,7 @@ reg countstep = 0; //used for candyflag dispense
 reg test;
 reg prev = 0; //temp value
 reg current; //temp value
+reg i; 
 //for clocks
 wire stepb;
 wire stepbslow;
@@ -79,7 +80,7 @@ assign IO_A3_i = IO_A3; 	 //[0] of[1:0] stateamount for amount to dispense
 assign IO_A4_i = IO_A4; 	 //[1] of[1:0] stateamount for amount to dispense
 
 
-always @ (DIPSW[2:0], teststate[2:0], stepb)
+always @ (DIPSW[2:0], teststate[2:0], stepb, candyflag, stateamount[1:0])
     begin
 		
 		teststate[0] = IO_B6_i;	 	 //input teststate[0] stated in first line
@@ -137,10 +138,135 @@ always @ (DIPSW[2:0], teststate[2:0], stepb)
 		   //Added handshake send input to raspberrypi to confirms that candyflag was set 
 		//removed, check it on github v6
 		    
-   end	
-	
+ 
+
+   //Added handshake send input to raspberrypi to confirms that candyflag was set 
+		   if(candyflag == 1)
+				begin
+				   case (stateamount[1:0])
+						//State 00 is the small amount state, the GUI should send this signal 
+						//whenever nothing has been changed and just starting up
+						2'b00 : begin      //small amount being dispensed
+								//send signals to stepper motor 
+
+								 for( i = 1000; i > 0; i = i - 1) 
+									begin
+									/*if(stepb == 0 ) begin
+										while(stepb == 0)
+											stepperstep = stepb;
+										while(stepb == 1)
+											stepperstep = stepb;
+										countstep = countstep + 1;
+									end
+									else 
+										stepperstep = 0;*/
+									current = stepb; 
+									if(current == prev)
+										stepperstep = stepperstep;
+									else if(current != prev)
+										begin
+											countstep = countstep + 1;
+											stepperstep = current; 
+											prev = current; 
+										end
+
+									end
 
 
+								//send signal to dcmotor pin
+															   //signal to right pwm to DC motor
+							   dcmotor[0] = 1'b1;
+							   dcmotor[1] = 1'b0;
+							   dcmotor[2] = stepDC; // ? 1'b1 : 1'b0 ;
+							   handshake = 1'b1;		//send output to raspberry pi
+							end
+						//State 10 is in medium amount being dispensed
+						2'b01 : begin      //med amount being dispensed
+								//send signals to stepper motor 
+
+								for( i = 1000; i > 0; i = i - 1) 
+									begin
+									/*if(stepb == 0 ) begin
+										while(stepb == 0)
+											stepperstep = stepb;
+										while(stepb == 1)
+											stepperstep = stepb;
+										countstep = countstep + 1;
+									end
+									else 
+										stepperstep = 0
+							*/
+									current = stepb; 
+									if(current == prev)
+										stepperstep = stepperstep;
+									else if(current != prev)
+										begin
+											countstep = countstep + 1;
+											stepperstep = current; 
+											prev = current; 
+										end
+
+									end
+
+								//send signal to dcmotor pin
+															   //signal to right pwm to DC motor
+							   dcmotor[0] = 1'b1;
+							   dcmotor[1] = 1'b0;
+							   dcmotor[2] = stepDC; // ? 1'b1 : 1'b0 ;
+							   handshake = 1'b1;		//send output to raspberry pi
+							end
+
+						2'b10 : begin   //large amount being dispensed
+								//send signals to stepper motor 
+
+								for( i = 1000; i > 0; i = i - 1)  									
+									begin
+									/*if(stepb == 0 ) begin
+										while(stepb == 0)
+											stepperstep = stepb;
+										while(stepb == 1)
+											stepperstep = stepb;
+										countstep = countstep + 1;
+									end
+									else 
+										stepperstep = 0;*/
+									current = stepb; 
+									if(current == prev)
+										stepperstep = stepperstep;
+									else if(current != prev)
+										begin
+											countstep = countstep + 1;
+											stepperstep = current; 
+											prev = current; 
+										end
+
+									end
+								//send signal to dcmotor pin
+															   //signal to right pwm to DC motor
+							   dcmotor[0] = 1'b1;
+							   dcmotor[1] = 1'b0;
+							   dcmotor[2] = stepDC; // ? 1'b1 : 1'b0 ;
+							   handshake = 1'b1;		//send output to raspberry pi
+								end
+
+					endcase
+
+
+
+				end
+			else
+				begin
+					handshake = 1'b0;		//send output to raspberry pi
+					stepperstep = 1'b0;
+					stepperdir = 1'b0;
+					dcmotor[0] = 1'b0;
+					dcmotor[1] = 1'b1;
+					dcmotor[2] = 1'b0;
+					//stop all motors
+				end
+
+
+end
 
 
 //--------------------------------------------------------------------
