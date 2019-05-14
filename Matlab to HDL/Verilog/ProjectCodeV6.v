@@ -86,9 +86,10 @@ always @ (DIPSW[2:0], teststate[2:0], stepb, candyflag, stateamount[1:0])
 		teststate[0] = IO_B6_i;	 	 //input teststate[0] stated in first line
 		teststate[1] = IO_B5_i;	 	 //input teststate[1] stated in first line
 		teststate[2] = IO_B4_i;	 	 //input teststate[2] stated in first line
-
-		
-            case (DIPSW[2:0])        //later changed to state when we can recieve Rasp Pi inputs
+		stateamount[0] = IO_A3_i; 	 //[0] of[1:0] stateamount for amount to dispense
+		stateamount[1] = IO_A4_i; 	 //[1] of[1:0] stateamount for amount to dispense
+		candyflag = IO_A5_i;			 //assigns input of candyflag
+            case (teststate[2:0])        //later changed to state when we can recieve Rasp Pi inputs
 			
 				3'b001 : begin 
 						  //signal to stepper motor
@@ -319,8 +320,8 @@ clock_division inst_DCSLOW (
         .clock_div_o (fixDCslow)
 		);	
 //defparam inst_DCSLOW_CLK.rise = "25";
-PWM_DC #(.rise(40)) inst_DCSLOW_CLK (
-		.clk (fixDCslow),
+PWM_DC #(.rise(25)) inst_DCSLOW_CLK (
+		.clk (fixDC),			//changed from fixDCslow
 		.clk_out (stepDCslow)
 
 );
