@@ -22,7 +22,10 @@ LARGE_FONT = ("Verdana", 25)
 class MyApp(Tk):
 
     def __init__(self):
-        Tk.__init__(self)
+        Tk.__init__(self) 
+        # the container is where we'll stack a bunch of frames
+        # on top of each other, then the one we want visible
+        # will be raised above the others
         container = ttk.Frame(self)                             
         container.pack(side="top", fill="both", expand = True)  #Packing on top and fill all space
         self.frames = {}                                        #empty dictionary 
