@@ -80,16 +80,19 @@ assign IO_A3_i = IO_A3; 	 //[0] of[1:0] stateamount for amount to dispense
 assign IO_A4_i = IO_A4; 	 //[1] of[1:0] stateamount for amount to dispense
 
 
-always @ (DIPSW[2:0], teststate[2:0], stepb, candyflag, stateamount[1:0])
+always @ ( teststate[2:0], candyflag, stateamount[1:0] )//(posedge osc_clk) //removed because no support for synthesis of mixed edge and level triggers: DIPSW[2:0], teststate[2:0], candyflag, stateamount[1:0])
+						   //by using clock we're able to assign the teststate reg and such to wires
     begin
 		
-		teststate[0] = IO_B6_i;	 	 //input teststate[0] stated in first line
-		teststate[1] = IO_B5_i;	 	 //input teststate[1] stated in first line
-		teststate[2] = IO_B4_i;	 	 //input teststate[2] stated in first line
-		stateamount[0] = IO_A3_i; 	 //[0] of[1:0] stateamount for amount to dispense
-		stateamount[1] = IO_A4_i; 	 //[1] of[1:0] stateamount for amount to dispense
-		candyflag = IO_A5_i;			 //assigns input of candyflag
-            case (teststate[2:0])        //later changed to state when we can recieve Rasp Pi inputs
+			//these inputs are tested because there's a continous assignment from IO_XX_i = IO_XX
+			teststate[0] = IO_B6_i;	 	 //input teststate[0] stated in first line
+			teststate[1] = IO_B5_i;	 	 //input teststate[1] stated in first line
+			teststate[2] = IO_B4_i;	 	 //input teststate[2] stated in first line
+			stateamount[0] = IO_A3_i; 	 //[0] of[1:0] stateamount for amount to dispense
+			stateamount[1] = IO_A4_i; 	 //[1] of[1:0] stateamount for amount to dispense
+			candyflag = IO_A5_i;			 //assigns input of candyflag
+
+            case(teststate[2:0])        //later changed to state when we can recieve Rasp Pi inputs
 			
 				3'b001 : begin 
 						  //signal to stepper motor
@@ -138,11 +141,8 @@ always @ (DIPSW[2:0], teststate[2:0], stepb, candyflag, stateamount[1:0])
            endcase
 		   //Added handshake send input to raspberrypi to confirms that candyflag was set 
 		//removed, check it on github v6
-		    
- 
-
-   //Added handshake send input to raspberrypi to confirms that candyflag was set 
-		   if(candyflag == 1)
+	
+   if(candyflag == 1)
 				begin
 				   case (stateamount[1:0])
 						//State 00 is the small amount state, the GUI should send this signal 
@@ -150,7 +150,7 @@ always @ (DIPSW[2:0], teststate[2:0], stepb, candyflag, stateamount[1:0])
 						2'b00 : begin      //small amount being dispensed
 								//send signals to stepper motor 
 
-								 for( i = 1000; i > 0; i = i - 1) 
+								 for( i = 10; i > 0; i = i - 1) 
 									begin
 									/*if(stepb == 0 ) begin
 										while(stepb == 0)
@@ -185,7 +185,7 @@ always @ (DIPSW[2:0], teststate[2:0], stepb, candyflag, stateamount[1:0])
 						2'b01 : begin      //med amount being dispensed
 								//send signals to stepper motor 
 
-								for( i = 1000; i > 0; i = i - 1) 
+								for( i = 10; i > 0; i = i - 1) 
 									begin
 									/*if(stepb == 0 ) begin
 										while(stepb == 0)
@@ -220,7 +220,7 @@ always @ (DIPSW[2:0], teststate[2:0], stepb, candyflag, stateamount[1:0])
 						2'b10 : begin   //large amount being dispensed
 								//send signals to stepper motor 
 
-								for( i = 1000; i > 0; i = i - 1)  									
+								for( i = 10; i > 0; i = i - 1)  									
 									begin
 									/*if(stepb == 0 ) begin
 										while(stepb == 0)
@@ -357,4 +357,5 @@ assign IO_D6 = handshake;
 assign clock_test_step = stepb;
 assign clock_test_DC = stepDC;
 assign clock_test_DCSLOW = stepDCslow;
+
 endmodule 
