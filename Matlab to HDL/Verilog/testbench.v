@@ -1,4 +1,4 @@
-`timescale 1 s / 1 ps
+`timescale 1 ms / 1 ps
 
 module testbench;
         wire        clk_x1;     	// 12M clock from FTDI/X1 crystal
@@ -26,31 +26,32 @@ project_module DUT( .rstn(rstn),.DIPSW(DIPSW), .IO_B4(IO_B4), .IO_B5(IO_B5), .IO
 				   
 	initial
 	begin
-		#5 rstn = 1'b1;	
-		#2 rstn = 1'b0;
-		#10 // 1s
-		DIPSW[2:0] = 3'b000;
-		#10 // 1s
+		#5 rstn = 1'b0;	
+		#2 rstn = 1'b1;
+		#100 // 1s
+	/*	DIPSW[2:0] = 3'b000;
+		#100 // 1s
 		DIPSW[2:0] = 3'b001;
-		#10 DIPSW[2:0] = 3'b000;
-		#1 // 1s
+		#100 DIPSW[2:0] = 3'b000;
+		#10 // 1s
 		DIPSW[2:0] = 3'b010;
-		#10 DIPSW[2:0] = 3'b000;
-		#1 // 1s
+		#100 DIPSW[2:0] = 3'b000;
+		#10 // 1s
 		DIPSW[2:0] = 3'b011;
-		#10 DIPSW[2:0] = 3'b000;
-		#1 // 1s
+		#100 DIPSW[2:0] = 3'b000;
+		#10 // 1s	
+	*/
 		DIPSW[2:0] = 3'b100;
-		#10 DIPSW[2:0] = 3'b000;
-		#1// 1s
+		#500 DIPSW[2:0] = 3'b000;
+		#10// 1s
 		DIPSW[2:0] = 3'b101;
-		#10 DIPSW[2:0] = 3'b000;
-		#1 // 1s
+		#500 DIPSW[2:0] = 3'b000;
+		#10 // 1s
 		DIPSW[2:0] = 3'b110;
-		#10 DIPSW[2:0] = 3'b000;
-		#1 // 1s
+		#500 DIPSW[2:0] = 3'b000;
+		#10 // 1s
 		DIPSW[2:0] = 3'b111;
-		#9 // 100000s
+		#90 // 100000s
 		$finish;
 	end
 	

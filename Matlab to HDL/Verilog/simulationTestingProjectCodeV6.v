@@ -49,7 +49,8 @@ reg candyflag;	//indicates when it's time to dispense
 reg signalrecieved; //signal for when new state was recieved
 reg stepperstep;	
 reg stepperdir;
-reg [2:0] dcmotor;
+reg [2:0] dcmotor;	 
+
 reg servopwm; 
 reg handshake = 1'b0; //for rasp pi
 //counter
@@ -81,7 +82,7 @@ assign IO_A3_i = IO_A3; 	 //[0] of[1:0] stateamount for amount to dispense
 assign IO_A4_i = IO_A4; 	 //[1] of[1:0] stateamount for amount to dispense
 
 
-always @ (DIPSW[2:0], stepb) // teststate[2:0], candyflag, stateamount[1:0] )//(posedge osc_clk) //removed because no support for synthesis of mixed edge and level triggers: DIPSW[2:0], teststate[2:0], candyflag, stateamount[1:0])
+always @ (DIPSW[2:0], stepb, stepperstep) // teststate[2:0], candyflag, stateamount[1:0] )//(posedge osc_clk) //removed because no support for synthesis of mixed edge and level triggers: DIPSW[2:0], teststate[2:0], candyflag, stateamount[1:0])
 						   //by using clock we're able to assign the teststate reg and such to wires
     begin
 		
@@ -116,7 +117,7 @@ always @ (DIPSW[2:0], stepb) // teststate[2:0], candyflag, stateamount[1:0] )//(
 							   dcmotor[0] = 1'b0; //default
 							   dcmotor[1] = 1'b1;
 							   dcmotor[2] = stepDCslow ;//? 1'b1 : 1'b0 ;
-                    end
+						end
 				3'b101 : begin 
 							   //signal to right pwm to DC motor
 							   dcmotor[0] = 1'b1;
@@ -140,134 +141,7 @@ always @ (DIPSW[2:0], stepb) // teststate[2:0], candyflag, stateamount[1:0] )//(
                     end
 				
            endcase
-		   //Added handshake send input to raspberrypi to confirms that candyflag was set 
-		//removed, check it on github v6
 	
-   if(candyflag == 1)
-				begin
-				   case (stateamount[1:0])
-						//State 00 is the small amount state, the GUI should send this signal 
-						//whenever nothing has been changed and just starting up
-						2'b00 : begin      //small amount being dispensed
-								//send signals to stepper motor 
-
-								 for( i = 10; i > 0; i = i - 1) 
-									begin
-									/*if(stepb == 0 ) begin
-										while(stepb == 0)
-											stepperstep = stepb;
-										while(stepb == 1)
-											stepperstep = stepb;
-										countstep = countstep + 1;
-									end
-									else 
-										stepperstep = 0;*/
-									current = stepb; 
-									if(current == prev)
-										stepperstep = stepperstep;
-									else if(current != prev)
-										begin
-											countstep = countstep + 1;
-											stepperstep = current; 
-											prev = current; 
-										end
-
-									end
-
-
-								//send signal to dcmotor pin
-															   //signal to right pwm to DC motor
-							   dcmotor[0] = 1'b1;
-							   dcmotor[1] = 1'b0;
-							   dcmotor[2] = stepDC; // ? 1'b1 : 1'b0 ;
-							   handshake = 1'b1;		//send output to raspberry pi
-							end
-						//State 10 is in medium amount being dispensed
-						2'b01 : begin      //med amount being dispensed
-								//send signals to stepper motor 
-
-								for( i = 10; i > 0; i = i - 1) 
-									begin
-									/*if(stepb == 0 ) begin
-										while(stepb == 0)
-											stepperstep = stepb;
-										while(stepb == 1)
-											stepperstep = stepb;
-										countstep = countstep + 1;
-									end
-									else 
-										stepperstep = 0
-							*/
-									current = stepb; 
-									if(current == prev)
-										stepperstep = stepperstep;
-									else if(current != prev)
-										begin
-											countstep = countstep + 1;
-											stepperstep = current; 
-											prev = current; 
-										end
-
-									end
-
-								//send signal to dcmotor pin
-															   //signal to right pwm to DC motor
-							   dcmotor[0] = 1'b1;
-							   dcmotor[1] = 1'b0;
-							   dcmotor[2] = stepDC; // ? 1'b1 : 1'b0 ;
-							   handshake = 1'b1;		//send output to raspberry pi
-							end
-
-						2'b10 : begin   //large amount being dispensed
-								//send signals to stepper motor 
-
-								for( i = 10; i > 0; i = i - 1)  									
-									begin
-									/*if(stepb == 0 ) begin
-										while(stepb == 0)
-											stepperstep = stepb;
-										while(stepb == 1)
-											stepperstep = stepb;
-										countstep = countstep + 1;
-									end
-									else 
-										stepperstep = 0;*/
-									current = stepb; 
-									if(current == prev)
-										stepperstep = stepperstep;
-									else if(current != prev)
-										begin
-											countstep = countstep + 1;
-											stepperstep = current; 
-											prev = current; 
-										end
-
-									end
-								//send signal to dcmotor pin
-															   //signal to right pwm to DC motor
-							   dcmotor[0] = 1'b1;
-							   dcmotor[1] = 1'b0;
-							   dcmotor[2] = stepDC; // ? 1'b1 : 1'b0 ;
-							   handshake = 1'b1;		//send output to raspberry pi
-								end
-
-					endcase
-
-
-
-				end
-			else
-				begin
-					handshake = 1'b0;		//send output to raspberry pi
-					stepperstep = 1'b0;
-					stepperdir = 1'b0;
-					dcmotor[0] = 1'b0;
-					dcmotor[1] = 1'b1;
-					dcmotor[2] = 1'b0;
-					//stop all motors
-				end
-
-
 end
 
 
@@ -306,9 +180,9 @@ clock_division inst_step(
         .clock_div_o (stepb)	//520 Hz
 		);
 			
-defparam inst_DC.width = "9";
-defparam inst_DC.N = "155";		//18,086.95 Hz
-clock_division inst_DC (
+//defparam inst_DC.width = 9;
+//defparam inst_DC.N = 101;		//18,086.95 Hz
+clock_division #(.N(101), .width(9)) inst_DC (
         .clk        (osc_clk),
         .rst        (rst),
         .clock_div_o (fixDC)
