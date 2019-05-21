@@ -19,10 +19,10 @@ module testbench;
 		wire 		handshake;		//output
 		wire 		clock_DC;
 		wire 		clock_DCSLOW;
-		
+		wire 		clock_test_step; 
 project_module DUT( .rstn(rstn),.IO_B4(teststate0),.IO_B5(teststate1),.IO_B6(teststate2),
 					.IO_A3(stateamount0),.IO_A4(stateamount1),.IO_A5(candyflag),.IO_D9(stepperstep),.IO_A10(stepperdir),
-					.IO_B9(dcmotor0),.IO_F7(dcmotor1), .IO_C4(dcmotor2), .IO_D6(handshake) ,.clock_test_DC(clock_DC),.clock_test_DCSLOW(clock_DCSLOW)
+					.IO_B9(dcmotor0),.IO_F7(dcmotor1), .IO_C4(dcmotor2), .IO_D6(handshake) ,.clock_test_DC(clock_DC),.clock_test_DCSLOW(clock_DCSLOW), .clock_test_step(clock_test_step)
 				   );
 /*	//assign TESTSTATE = {teststate0,teststate1,teststate2} ;
 		#5 rstn = 1'b0;	
@@ -94,21 +94,21 @@ project_module DUT( .rstn(rstn),.IO_B4(teststate0),.IO_B5(teststate1),.IO_B6(tes
 		stateamount0 = 1'b0;
 		stateamount1 = 1'b0;
 		candyflag = 1'b1;
-		#8000
+		#800
 		candyflag = 1'b0;
-		#8000 
+		#800 
 		stateamount0 = 1'b1;
 		stateamount1 = 1'b0;
 		candyflag = 1'b1;
-		#8000
+		#800
 		candyflag = 1'b0;
-		#8000
+		#800
 		stateamount0 = 1'b0;
 		stateamount1 = 1'b1;
 		candyflag = 1'b1;
-		#8000
+		#800
 		candyflag = 1'b0;
-		#8000
+		#800
 		//#90000 // 9s
 		$finish;
 	end
