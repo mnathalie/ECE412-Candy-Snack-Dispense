@@ -149,32 +149,32 @@ end
 //--  module instances
 //--------------------------------------------------------------------
 
-defparam OSCH_inst.NOM_FREQ = "2.08";  
+//defparam OSCH_inst.NOM_FREQ = "2.08";  
 //default param is 2.08 (2MHz)
-OSCH OSCH_inst( 
+OSCH #(.NOM_FREQ(2.08)) OSCH_inst( 
     .STDBY(1'b0), // 0=Enabled, 1=Disabled
     .OSC(osc_clk),
     .SEDSTDBY()
     );
 //clock_division 
 //signal for stepper
-defparam inst_fixstep.width = "9";
-defparam inst_fixstep.N = "400";
-clock_division inst_fixstep (
+//defparam inst_fixstep.width = "9";
+//defparam inst_fixstep.N = "400";
+clock_division #(.N(400), .width(9)) inst_fixstep (
         .clk        (osc_clk),
         .rst        (rst),
         .clock_div_o (fixstep)	//5200Hz
 		);
-defparam inst_stepslow.width = "6";
-defparam inst_stepslow.N = "32";
-clock_division inst_stepslow (
+//defparam inst_stepslow.width = "6";
+//defparam inst_stepslow.N = "32";
+clock_division #(.N(32), .width(6)) inst_stepslow (
         .clk        (osc_clk),
         .rst        (rst),
         .clock_div_o (stepbslow)	//162Hz
 		);
-defparam inst_step.width = "4";
-defparam inst_step.N = "10";
-clock_division inst_step(
+//defparam inst_step.width = "4";
+//defparam inst_step.N = "10";
+clock_division #(.N(10), .width(4)) inst_step(
         .clk        (osc_clk),
         .rst        (rst),
         .clock_div_o (stepb)	//520 Hz
@@ -182,14 +182,14 @@ clock_division inst_step(
 			
 //defparam inst_DC.width = 9;
 //defparam inst_DC.N = 101;		//18,086.95 Hz
-clock_division #(.N(101), .width(9)) inst_DC (
+clock_division #(.N(101), .width(7)) inst_DC (
         .clk        (osc_clk),
         .rst        (rst),
         .clock_div_o (fixDC)
 		);	
-defparam inst_DCSLOW.width = "9";
-defparam inst_DCSLOW.N = "200";		//10,400hz	
-clock_division inst_DCSLOW (
+//defparam inst_DCSLOW.width = "9";
+//defparam inst_DCSLOW.N = "200";		//10,400hz	
+clock_division #(.N(200), .width(9)) inst_DCSLOW (
         .clk        (osc_clk),
         .rst        (rst),
         .clock_div_o (fixDCslow)
