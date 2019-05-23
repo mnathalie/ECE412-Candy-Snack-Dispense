@@ -1,4 +1,5 @@
 `timescale 1 ns / 1 ps
+//This code is used to reduce the osc_clock to a smaller Hz in order to use it for the stepper motor.
 module clock_division(
 	input   wire        rst,
 	input   wire        clk,
@@ -8,9 +9,9 @@ module clock_division(
 parameter width = 2;
 parameter N = 2;	
 reg [width:0] clk_div_counter;
-//wire [width:0] next;
-reg clock_tracker;
 
+reg clock_tracker ;
+				
 always @(posedge clk)
 	begin
 		if(rst)

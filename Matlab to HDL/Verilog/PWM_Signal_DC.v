@@ -1,5 +1,5 @@
-//DC only 
-
+//DC only. The module takes in the already divided clock signal and re-adjusts it so that we can 
+// control ratios for PWM if needed. The default is set to 50, or 50% duty cycle.
 module PWM_DC( input wire clk , output wire clk_out);
 
 

@@ -1,4 +1,5 @@
 //V6: has outputs for when candydispense is set
+//V7: set countermax and testing for candydispense with it, need to remove unused/commented out code
 //the purpose of the program is to take in inputs from the raspberry pi to give movement to motors.
 
 module project_module (       // inputs
@@ -40,7 +41,6 @@ wire IO_A3_i; 	 	//[0] of[1:0] stateamount for amount to dispense
 wire IO_A4_i; 	 	//[1] of[1:0] stateamount for amount to dispense
 
 
-//
 //reg (always)
 reg [2:0] teststate;		//3 inputs total
 reg [1:0] stateamount;		//2 inputs total
@@ -84,8 +84,7 @@ assign IO_A3_i = IO_A3; 	 //[0] of[1:0] stateamount for amount to dispense
 assign IO_A4_i = IO_A4; 	 //[1] of[1:0] stateamount for amount to dispense
 
 
-always @ (DIPSW[2:0], stepb, counterflag, candyflag) // teststate[2:0], candyflag, stateamount[1:0] )//(posedge osc_clk) //removed because no support for synthesis of mixed edge and level triggers: DIPSW[2:0], teststate[2:0], candyflag, stateamount[1:0])
-						   //by using clock we're able to assign the teststate reg and such to wires
+always @ (DIPSW[2:0], stepb, candyflag, stateamount[1:0],teststate[2:0]) 
     begin
 		
 			//these inputs are tested because there's a continous assignment from IO_XX_i = IO_XX
@@ -104,7 +103,7 @@ always @ (DIPSW[2:0], stepb, counterflag, candyflag) // teststate[2:0], candyfla
 						  stepperstep = stepbslow;  //reduce hz to reduce speed
 						 end
 				3'b010 : begin 
-						  //signal to stepper motor						  //stepper motor change dir right
+						  //signal to stepper motor	//stepper motor change dir right
 						  //signal to stepper motor only
 						  stepperdir = 1'b1;
   						  stepperstep = stepbslow;  //reduce hz to reduce speed
@@ -144,7 +143,6 @@ always @ (DIPSW[2:0], stepb, counterflag, candyflag) // teststate[2:0], candyfla
 				
            endcase
 		   //Added handshake send input to raspberrypi to confirms that candyflag was set 
-		//removed, check it on github v6
 	
    if(candyflag == 1)
 	   begin  
@@ -159,10 +157,10 @@ always @ (DIPSW[2:0], stepb, counterflag, candyflag) // teststate[2:0], candyfla
 									//signal to right pwm to DC motor
 									 dcmotor[0] = 1'b1;
 									 dcmotor[1] = 1'b0;
-									 dcmotor[2] = stepDC; // ? 1'b1 : 1'b0 ;
-									 stepperdir = 1'b0; // dont need to step again because of default
+									 dcmotor[2] = stepDC; 
+									 stepperdir = 1'b0; 
 									 stepperstep = stepb;  //reduce hz to reduce speed
-									 countermax = 10;
+									 countermax = 5;
 		
 							end
 						//State 10 is in medium amount being dispensed
@@ -173,10 +171,10 @@ always @ (DIPSW[2:0], stepb, counterflag, candyflag) // teststate[2:0], candyfla
 									//signal to right pwm to DC motor
 									 dcmotor[0] = 1'b1;
 									 dcmotor[1] = 1'b0;
-									 dcmotor[2] = stepDC; // ? 1'b1 : 1'b0 ;
-									 stepperdir = 1'b0; // dont need to step again because of default
+									 dcmotor[2] = stepDC; 
+									 stepperdir = 1'b0; 
 									 stepperstep = stepb;  //reduce hz to reduce speed
-									 countermax = 10;
+									 countermax = 6;
 
 		
 							end
@@ -188,17 +186,17 @@ always @ (DIPSW[2:0], stepb, counterflag, candyflag) // teststate[2:0], candyfla
 									//signal to right pwm to DC motor
 									 dcmotor[0] = 1'b1;
 									 dcmotor[1] = 1'b0;
-									 dcmotor[2] = stepDC; // ? 1'b1 : 1'b0 ;
-									 stepperdir = 1'b0; // dont need to step again because of default
+									 dcmotor[2] = stepDC; 
+									 stepperdir = 1'b0; 
 									 stepperstep = stepb;  //reduce hz to reduce speed
-									 countermax = 10;
+									 countermax = 7;
 									end
 					endcase
 
 				end
 	else
 		begin
-			//handshake = 1'b0;		//send output to raspberry pi
+			handshake = 1'b0;		//send output to raspberry pi
 			stepperstep = 1'b0;
 			stepperdir = 1'b0;
 			dcmotor[0] = 1'b0;
@@ -295,7 +293,7 @@ assign IO_B9 = dcmotor[0];
 assign IO_F7 = dcmotor[1];
 assign IO_C4 = dcmotor[2]; 
 assign IO_D6 = handshake;
-assign clock_test_step = counterflag;
+assign clock_test_step = stepb;
 assign clock_test_DC = stepDC;
 assign clock_test_DCSLOW = stepDCslow;
 
