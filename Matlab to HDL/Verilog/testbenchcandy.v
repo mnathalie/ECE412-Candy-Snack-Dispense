@@ -1,4 +1,4 @@
-`timescale 1 ms / 1 ps
+`timescale 1 s / 1 ps
 // add testing for candy dispense flags, 
 module testbench;
         wire        clk_x1;     	// 12M clock from FTDI/X1 crystal
@@ -89,28 +89,29 @@ project_module DUT( .rstn(rstn),.IO_B4(teststate0),.IO_B5(teststate1),.IO_B6(tes
 	begin
 			
 		#5 rstn = 1'b0;	
-		#20 rstn = 1'b1;
-		#100 // .1s
+		#2 rstn = 1'b1;
+		#10 // .1s
 		stateamount0 = 1'b0;
 		stateamount1 = 1'b0;
 		candyflag = 1'b1;
-		#800
+		#60
+		
+		#8 	
 		candyflag = 1'b0;
-		#800 
-		stateamount0 = 1'b1;
-		stateamount1 = 1'b0;
-		candyflag = 1'b1;
-		#800
-		candyflag = 1'b0;
-		#800
-		stateamount0 = 1'b0;
-		stateamount1 = 1'b1;
-		candyflag = 1'b1;
-		#800
-		candyflag = 1'b0;
-		#800
+		//stateamount0 = 1'b1;
+		//stateamount1 = 1'b0;
+		//candyflag = 1'b1;
+		#60
+		//candyflag = 1'b0;
+		#8
+		//stateamount0 = 1'b0;
+		//stateamount1 = 1'b1;
+		//candyflag = 1'b1;
+		#60		
+		//candyflag = 1'b0;
+		#8
 		//#90000 // 9s
-		$finish;
+		$finish; 
 	end
 	
 	
