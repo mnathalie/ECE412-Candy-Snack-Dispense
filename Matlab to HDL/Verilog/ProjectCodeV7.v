@@ -57,9 +57,8 @@ reg countstep = 0; //used for candyflag dispense
 reg test;
 reg prev = 0; //temp value
 reg current; //temp value
-reg i; 
 reg counterflag = 1;
-reg countermax = 0;
+
 //for clocks
 wire stepb;
 wire stepbslow;
@@ -71,7 +70,8 @@ wire clockhandshake;
 wire fixDCslow;
 wire fixDC;
 wire fixstep;
-
+wire o_clk;
+integer countermax = 0;
 //and
 assign rst = ~rstn;
 
@@ -95,18 +95,18 @@ always @ (DIPSW[2:0], stepb, candyflag, stateamount[1:0],teststate[2:0])
 			stateamount[1] = IO_A4_i; 	 //[1] of[1:0] stateamount for amount to dispense
 			candyflag = IO_A5_i;			 //assigns input of candyflag
 
-            case(DIPSW[2:0])        //later changed to state when we can recieve Rasp Pi inputs
+            case(DIPSW [2:0])        //later changed to state when we can recieve Rasp Pi inputs
 			
 				3'b001 : begin 
 						  //signal to stepper motor
 				  		  stepperdir = 1'b0; // dont need to step again because of default
-						  stepperstep = stepbslow;  //reduce hz to reduce speed
+						  stepperstep = stepb;  //reduce hz to reduce speed
 						 end
 				3'b010 : begin 
 						  //signal to stepper motor	//stepper motor change dir right
 						  //signal to stepper motor only
 						  stepperdir = 1'b1;
-  						  stepperstep = stepbslow;  //reduce hz to reduce speed
+  						  stepperstep = stepb;  //reduce hz to reduce speed
 						end
 				3'b011 : begin 
 						  //stepper motor change fast 
@@ -143,7 +143,7 @@ always @ (DIPSW[2:0], stepb, candyflag, stateamount[1:0],teststate[2:0])
 				
            endcase
 		   //Added handshake send input to raspberrypi to confirms that candyflag was set 
-	
+
    if(candyflag == 1)
 	   begin  
 		   		  
@@ -174,8 +174,8 @@ always @ (DIPSW[2:0], stepb, candyflag, stateamount[1:0],teststate[2:0])
 									 dcmotor[2] = stepDC; 
 									 stepperdir = 1'b0; 
 									 stepperstep = stepb;  //reduce hz to reduce speed
+								
 									 countermax = 6;
-
 		
 							end
 
@@ -195,25 +195,38 @@ always @ (DIPSW[2:0], stepb, candyflag, stateamount[1:0],teststate[2:0])
 
 				end
 	else
-		begin
-			handshake = 1'b0;		//send output to raspberry pi
+		begin  
+
 			stepperstep = 1'b0;
 			stepperdir = 1'b0;
 			dcmotor[0] = 1'b0;
 			dcmotor[1] = 1'b1;
 			dcmotor[2] = 1'b0;
 			//stop all motors
+			
 		end
 
-
+	   
 end
-always @(countermax)
+ 
+always @(countermax)  //or o_clk
 begin
-		while(countermax > 0 )
-			countermax = countermax - 1;
-		handshake = 1;
+		if(candyflag == 1)
+			begin
+					if(countermax > 0)
+						begin 
+							countermax = countermax - 1;
+				 			handshake = 1'b0;		//send output to raspberry pi
+						end
+					else
+						handshake = 1'b1;				
+			end
+		else 
+			countermax = 0;
+			
+			
 end
-
+   
 //--------------------------------------------------------------------
 //--  module instances
 //--------------------------------------------------------------------
@@ -225,9 +238,15 @@ OSCH #(.NOM_FREQ(2.08)) OSCH_inst(
     .OSC(osc_clk),
     .SEDSTDBY()
     );
+//default param is 2.08 (2MHz)
+OSCH #(.NOM_FREQ(2.08)) O_clk_inst( 
+    .STDBY(1'b0), // 0=Enabled, 1=Disabled
+    .OSC(o_clk),
+    .SEDSTDBY()
+    );	
+	
 //clock_division 
 //signal for stepper
-
 clock_division #(.N(400), .width(9)) inst_fixstep (
         .clk        (osc_clk),
         .rst        (rst),

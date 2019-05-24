@@ -95,20 +95,23 @@ project_module DUT( .rstn(rstn),.IO_B4(teststate0),.IO_B5(teststate1),.IO_B6(tes
 		stateamount1 = 1'b0;
 		candyflag = 1'b1;
 		#60
-		
-		#8 	
-		candyflag = 1'b0;
-		//stateamount0 = 1'b1;
-		//stateamount1 = 1'b0;
-		//candyflag = 1'b1;
+		//if(handshake == 1)
+		//	begin
+		//		#10
+		candyflag = 1'b0; 
+		//	end	
+		#10
+		stateamount0 = 1'b1;
+		stateamount1 = 1'b0;
+		candyflag = 1'b1;
 		#60
-		//candyflag = 1'b0;
+		candyflag = 1'b0;
 		#8
-		//stateamount0 = 1'b0;
-		//stateamount1 = 1'b1;
-		//candyflag = 1'b1;
+		stateamount0 = 1'b0;
+		stateamount1 = 1'b1;
+		candyflag = 1'b1;
 		#60		
-		//candyflag = 1'b0;
+		candyflag = 1'b0;
 		#8
 		//#90000 // 9s
 		$finish; 
