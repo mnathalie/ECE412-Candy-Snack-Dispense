@@ -95,7 +95,7 @@ always @ (DIPSW[2:0], stepb, candyflag, stateamount[1:0],teststate[2:0])
 			stateamount[1] = IO_A4_i; 	 //[1] of[1:0] stateamount for amount to dispense
 			candyflag = IO_A5_i;			 //assigns input of candyflag
 
-            case(DIPSW[2:0])        //later changed to state when we can recieve Rasp Pi inputs
+            case(teststate[2:0])        //later changed to state when we can recieve Rasp Pi inputs
 			
 				3'b001 : begin 
 						  //signal to stepper motor
@@ -239,18 +239,18 @@ begin
 		//	end
 		else 
 			begin
-				case (stateamount[1:0])
+				case (stateamount[1:0]) 
 					2'b00 : begin
-						countermax = 10;
-						countermax_test = 7'b0001010; 
+						countermax = 20;
+						//countermax_test = 7'b0001010; 
 						end
 					2'b01 : begin
-						countermax = 5;
-						countermax_test = 7'b0001111;
+						countermax = 35;
+						//countermax_test = 7'b0001111;
 						end
 					2'b10 : begin
-						countermax = 10;
-						countermax_test = 7'b0010100; 
+						countermax = 45;
+						//countermax_test = 7'b0010100; 
 					end	
 					default: begin
 					    countermax = 0;
@@ -290,13 +290,13 @@ clock_division #(.N(400), .width(9)) inst_fixstep (
 		);
 
 clock_division #(.N(32), .width(6)) inst_stepslow (
-        .clk        (osc_clk),
+        .clk        (fixstep),
         .rst        (rst),
         .clock_div_o (stepbslow)	//162Hz
 		);
 
 clock_division #(.N(10), .width(4)) inst_step(
-        .clk        (osc_clk),
+        .clk        (fixstep),
         .rst        (rst),
         .clock_div_o (stepb)	//520 Hz
 		);
@@ -329,10 +329,10 @@ PWM_DC #(.rise(75)) inst_DCFAST_CLK (
 		.clk_out (stepDCfast)
 );
 //for handshake 
-clock_division #(.N(1000000), .width(28)) inst_handshake (
-        .clk        (osc_clk),
+clock_division #(.N(78), .width(12)) inst_handshake (
+        .clk        (stepbslow),
         .rst        (rst),
-        .clock_div_o (clockhandshake_o)	//162Hz / 50 = 3.23 ; therefore every 0.3 seconds 
+        .clock_div_o (clockhandshake_o)	//162Hz / 78 = 2.07 , 0.48 s ; 
 		);
 /* PWM_generation inst_dc_pwm(
         .clk        (osc_clk),
