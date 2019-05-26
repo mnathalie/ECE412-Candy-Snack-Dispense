@@ -20,10 +20,10 @@ module project_module (       // inputs
 		output  wire  		IO_B9,			// [0] of [1:0] dcmotor, direction
 		output  wire 		IO_F7,			// [1] controls direction
 		output  wire        IO_C4,			// [2] controls speed, pwm
-		output  wire 		IO_D6,			// handshake to give to raspberry pi, also signal for when new state was recieved
-		output  reg  	[7:0] countermax_test,	    //makes sure we have a beat, good for testing on simulation
-		output	wire		clockhandshake,
-		output	wire		clock_test_DCSLOW
+		output  wire 		IO_D6			// handshake to give to raspberry pi, also signal for when new state was recieved
+//		output  reg  	[7:0] countermax_test,	    //makes sure we have a beat, good for testing on simulation
+//		output	wire		clockhandshake,
+//		output	wire		clock_test_DCSLOW
 		);
 		
 
@@ -254,7 +254,7 @@ begin
 					end	
 					default: begin
 					    countermax = 0;
-						countermax_test = 7'b0000000;
+				//		countermax_test = 7'b0000000;
 						end
 				endcase
 				//countermax = 0;
@@ -355,7 +355,7 @@ assign IO_F7 = dcmotor[1];
 assign IO_C4 = dcmotor[2]; 
 assign IO_D6 = handshake;
 //assign countermax_test = countermax;
-assign clockhandshake = clockhandshake_o;
+//assign clockhandshake = clockhandshake_o;
 //assign clock_test_DCSLOW = clockhandshake;
 //assign countermax_test = countermax;
 
