@@ -21,8 +21,8 @@ module project_module (       // inputs
 		output  wire 		IO_F7,			// [1] controls direction
 		output  wire        IO_C4,			// [2] controls speed, pwm
 		output  wire 		IO_D6,			// handshake to give to raspberry pi, also signal for when new state was recieved
-		output  wire 		clock_test_step,	    //makes sure we have a beat, good for testing on simulation
-		output	wire		clock_test_DC,
+		output  reg  	[7:0] countermax_test,	    //makes sure we have a beat, good for testing on simulation
+		output	wire		clockhandshake,
 		output	wire		clock_test_DCSLOW
 		);
 		
@@ -65,7 +65,7 @@ wire stepbslow;
 wire stepDC; //clock wire for DC, output of ~27733Hz ; med/fast
 wire stepDCslow;
 wire stepDCfast;
-wire clockhandshake;
+wire clockhandshake_o;
 
 wire fixDCslow;
 wire fixDC;
@@ -95,7 +95,7 @@ always @ (DIPSW[2:0], stepb, candyflag, stateamount[1:0],teststate[2:0])
 			stateamount[1] = IO_A4_i; 	 //[1] of[1:0] stateamount for amount to dispense
 			candyflag = IO_A5_i;			 //assigns input of candyflag
 
-            case(DIPSW [2:0])        //later changed to state when we can recieve Rasp Pi inputs
+            case(DIPSW[2:0])        //later changed to state when we can recieve Rasp Pi inputs
 			
 				3'b001 : begin 
 						  //signal to stepper motor
@@ -160,7 +160,7 @@ always @ (DIPSW[2:0], stepb, candyflag, stateamount[1:0],teststate[2:0])
 									 dcmotor[2] = stepDC; 
 									 stepperdir = 1'b0; 
 									 stepperstep = stepb;  //reduce hz to reduce speed
-									 countermax = 5;
+							//		 countermax = 5;
 		
 							end
 						//State 10 is in medium amount being dispensed
@@ -175,7 +175,7 @@ always @ (DIPSW[2:0], stepb, candyflag, stateamount[1:0],teststate[2:0])
 									 stepperdir = 1'b0; 
 									 stepperstep = stepb;  //reduce hz to reduce speed
 								
-									 countermax = 6;
+							//		 countermax = 6;
 		
 							end
 
@@ -189,14 +189,24 @@ always @ (DIPSW[2:0], stepb, candyflag, stateamount[1:0],teststate[2:0])
 									 dcmotor[2] = stepDC; 
 									 stepperdir = 1'b0; 
 									 stepperstep = stepb;  //reduce hz to reduce speed
-									 countermax = 7;
+							//		 countermax = 7;
 									end
 					endcase
+		/*			
+					if(countermax > 0)
+						begin 
+							countermax = countermax - 1;
+				 			handshake = 1'b0;		//send output to raspberry pi
 
+						end
+					else
+						handshake = 1'b1; */
 				end
 	else
 		begin  
-
+	//		countermax = 0;
+	// 	    handshake = 1'b0;
+	
 			stepperstep = 1'b0;
 			stepperdir = 1'b0;
 			dcmotor[0] = 1'b0;
@@ -209,22 +219,48 @@ always @ (DIPSW[2:0], stepb, candyflag, stateamount[1:0],teststate[2:0])
 	   
 end
  
-always @(countermax)  //or o_clk
+always @(posedge clockhandshake_o) // stateamount, candyflag, clockhandshake_o)  //or o_clk
 begin
 		if(candyflag == 1)
 			begin
+			//	if(clockhandshake_o ) begin //purpose is to only have countermax decrease every X seconds
+											  // x being the inverse of clockhandshake
 					if(countermax > 0)
 						begin 
 							countermax = countermax - 1;
-				 			handshake = 1'b0;		//send output to raspberry pi
+				 		//	handshake = 1'b0;		//send output to raspberry pi
+
 						end
 					else
-						handshake = 1'b1;				
+						handshake = 1'b1;	
 			end
+			//	else //clockhandshake is low 
+			//		countermax = countermax; //equals itself
+		//	end
 		else 
-			countermax = 0;
-			
-			
+			begin
+				case (stateamount[1:0])
+					2'b00 : begin
+						countermax = 10;
+						countermax_test = 7'b0001010; 
+						end
+					2'b01 : begin
+						countermax = 5;
+						countermax_test = 7'b0001111;
+						end
+					2'b10 : begin
+						countermax = 10;
+						countermax_test = 7'b0010100; 
+					end	
+					default: begin
+					    countermax = 0;
+						countermax_test = 7'b0000000;
+						end
+				endcase
+				//countermax = 0;
+				handshake = 1'b0;
+			end	
+		
 end
    
 //--------------------------------------------------------------------
@@ -283,7 +319,7 @@ PWM_DC #(.rise(25)) inst_DCSLOW_CLK (
 		.clk_out (stepDCslow)
 
 );
-PWM_DC inst_DC_CLK (
+PWM_DC  inst_DC_CLK (
 		.clk (fixDC),
 		.clk_out (stepDC)
 );
@@ -292,6 +328,12 @@ PWM_DC #(.rise(75)) inst_DCFAST_CLK (
 		.clk (fixDC),
 		.clk_out (stepDCfast)
 );
+//for handshake 
+clock_division #(.N(1000000), .width(28)) inst_handshake (
+        .clk        (osc_clk),
+        .rst        (rst),
+        .clock_div_o (clockhandshake_o)	//162Hz / 50 = 3.23 ; therefore every 0.3 seconds 
+		);
 /* PWM_generation inst_dc_pwm(
         .clk        (osc_clk),
         .reset        (rst),
@@ -312,8 +354,9 @@ assign IO_B9 = dcmotor[0];
 assign IO_F7 = dcmotor[1];
 assign IO_C4 = dcmotor[2]; 
 assign IO_D6 = handshake;
-assign clock_test_step = stepb;
-assign clock_test_DC = stepDC;
-assign clock_test_DCSLOW = stepDCslow;
+//assign countermax_test = countermax;
+assign clockhandshake = clockhandshake_o;
+//assign clock_test_DCSLOW = clockhandshake;
+//assign countermax_test = countermax;
 
 endmodule 
