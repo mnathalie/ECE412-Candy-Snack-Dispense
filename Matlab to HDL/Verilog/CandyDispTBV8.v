@@ -165,7 +165,3 @@ project_module DUT( .rstn(rstn),.IO_B4(teststate0),.IO_B5(teststate1),.IO_B6(tes
 		#900 // s
 	*/
 	
-	
-	
-	
-endmodule
