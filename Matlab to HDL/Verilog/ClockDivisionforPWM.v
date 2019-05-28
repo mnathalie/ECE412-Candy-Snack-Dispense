@@ -8,23 +8,23 @@ module clock_division(
 
 parameter width = 2;
 parameter N = 2;	
-reg [width:0] clk_div_counter;
+reg [width:0] clk_div_counter = 0;
 
-reg clock_tracker ;
+reg clock_tracker = 1'b0; 
 				
 always @(posedge clk)
 	begin
-		if(rst)
+/*		if(rst)
 			begin
 				clk_div_counter = 0;
 				clock_tracker <= 1'b0;  
-			end
-		else if( clk_div_counter == N)
+			end	 */
+		if( clk_div_counter == N)
 			begin
 				clk_div_counter <= 0;
 				clock_tracker <= 1'b1;
 			end	
-		else
+		else  	
 			begin
 				clock_tracker <= 1'b0;
 				clk_div_counter = clk_div_counter + 1;
