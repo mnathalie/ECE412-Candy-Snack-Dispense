@@ -1,7 +1,7 @@
 `timescale 1 ns / 1 ps
 //This code is used to reduce the osc_clock to a smaller Hz in order to use it for the stepper motor.
 module clock_division(
-	input   wire        rst,
+//	input   wire        rst,
 	input   wire        clk,
 	output	clock_div_o
 	); 
