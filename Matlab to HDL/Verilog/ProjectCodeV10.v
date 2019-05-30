@@ -3,12 +3,10 @@
 //the purpose of the program is to take in inputs from the raspberry pi to give movement to motors.
 //V8: Completely new way of coding
 //V9: Try to fix an issue where handshake gets set to 1 instantly after candyflag is 1
+//V10: Hardcoded version
+//Team 24: Jiawen, Calob, Jennifer, Nathalie
 
 module project_module (       // inputs
-        //input   wire        clk_x1,     	// 12M clock from FTDI/X1 crystal
-		//input   wire        osc_clk,
-        //input   wire        rstn,       	// from SW1 pushbutton
-        //input   wire  [3:0] DIPSW,      	// from SW2 DIP switches
 		input   wire  		IO_B4,			//[0] of[2:0] teststate for 7 states from rasp pi
 		input   wire 		IO_B5,			//[1]
 		input 	wire 		IO_B6,			//[2]
@@ -16,65 +14,39 @@ module project_module (       // inputs
 		input 	wire 		IO_A3,			//[0] of[1:0] stateamount for amount to dispense
 		input   wire 		IO_A4,			//[1]
 		input   wire  		IO_A5, 			//candyflag indicates when it's time to dispense
-		//input candyflag;
-		//input [2:0]	teststate;
-		//input [1:0]	stateamount;
-
+		//outputs
 		output  wire 		IO_D9, 			// stepperstep
 		output  wire 		IO_A10,			// stepperdir,
 		output  wire  		IO_B9,			// [0] of [1:0] dcmotor, direction
 		output  wire 		IO_F7,			// [1] controls direction
 		output  wire        IO_C4			// [2] controls speed, pwm
-		//output  wire 		IO_D6			// handshake to give to raspberry pi, also signal for when new state was recieved
-		
-		//output 		fast_flag,
-		//output 		slow_flag,
-		//output 		medium_flag
 		);
 		
 
 // wires (assigns)
 wire          osc_clk;        // Internal OSCILLATOR clock
 
-//wire          rst;            //	
-//wire 		  clk_test;
-//moved here because it wasn't working earlier, can change back later
-//wire IO_A5_i;		//assigns input of candyflag
-//wire IO_B4_i;	 	//input teststate[0] stated in first line
-//wire IO_B5_i;	 	//input teststate[1] stated in first line
-//wire IO_B6_i;	 	//input teststate[2] stated in first line
-//wire IO_A3_i; 	 	//[0] of[1:0] stateamount for amount to dispense
-//wire IO_A4_i; 	 	//[1] of[1:0] stateamount for amount to dispense
-
-//reg (always)
+//regs used to take in input signals
 reg [2:0] teststate;		//3 inputs total
 reg [1:0] dispAmount;		//2 inputs total
 reg candyflag;	//indicates when it's time to dispense 
-//outputs
-//reg signalrecieved; //signal for when new state was recieved
+
+//Output regs
 reg step_out;	
 reg step_dir;
 reg [1:0] dc_dir;
 reg	dc_out;
-//reg servopwm; 
-//reg handshake; //for rasp pi
 
-//counters for dispensing candy
-//reg [9:0] stepcount; // = 10'b00_0110_0100;
-//reg [9:0] count;// = 10'b00_0000_0000;
-//for clocks
+//for making clocks and pwm signals foe outputs
 wire stepSlow;
 wire stepMedium;
 wire stepFast;
 wire dc_pwm25; //clock wire for DC, output of ~27733Hz ; med/fast
 wire dc_pwm50;
 wire dc_pwm75;
-//wire clockhandshake;
-
 wire fixDC;
-//wire fixDC for pwm;
 
-//flags for testing
+//flags to control motors
 reg	stepfast_flag;
 reg stepmedium_flag;
 reg stepslow_flag;
@@ -93,46 +65,35 @@ OSCH #(.NOM_FREQ(2.08)) OSCH_inst(
     .OSC(osc_clk),
     .SEDSTDBY()
     );
-//clock_division 
-//signal for stepper
-
-/*clock_division #(.N(200), .width(9)) inst_fixstep1 (
+ 
+//signals for stepper
+//used for stepper motor slow
+clock_division #(.N(32000), .width(15)) inst_stepslow (
         .clk        (osc_clk),
-        .rst        (rst),
-        .clock_div_o (fixstep)	//5200Hz
+        .clock_div_o (stepSlow)	//65Hz
 		);
-	*/	
-		
-clock_division #(.N(8000), .width(13)) inst_stepslow (
+//used for stepper motor medium
+clock_division #(.N(16000), .width(14)) inst_stepmed(
         .clk        (osc_clk),
-    //    .rst        (rst),
-        .clock_div_o (stepSlow)	//260Hz
+        .clock_div_o (stepMedium)	//130 Hz
 		);
-
-clock_division #(.N(4000), .width(12)) inst_stepmed(
+//used for stepper motor fast
+clock_division #(.N(8000), .width(13)) inst_stepfast(
         .clk        (osc_clk),
-      //  .rst        (rst),
-        .clock_div_o (stepMedium)	//520 Hz
+        .clock_div_o (stepFast)	//260 Hz
 		);
 		
-clock_division #(.N(2000), .width(11)) inst_stepfast(
-        .clk        (osc_clk),
-      //  .rst        (rst),
-        .clock_div_o (stepFast)	//1040 Hz
-		);
 //Signal for DC motors			
-//18,086.95 Hz
+
 clock_division #(.N(101), .width(7)) inst_DC (
         .clk        (osc_clk),
-        //.rst        (rst),
-        .clock_div_o (fixDC)
+        .clock_div_o (fixDC)	//18,086.95 Hz
 		);		
 
 //----------25% DUTY CYCLE AT 200Hz
 PWM_DC #(.rise(25)) inst_DCSLOW_CLK (
 		.clk (fixDC),			
 		.clk_out (dc_pwm25)
-
 );
 
 //----------50% DUTY CYCLE AT 200Hz
@@ -253,8 +214,4 @@ assign IO_A10 = step_dir;
 assign IO_B9 = dc_dir[0];
 assign IO_F7 = dc_dir[1];
 assign IO_C4 = dc_out; 
-//assign IO_D6 = handshake;
-//assign		fast_flag = stepfast_flag;
-//assign 		slow_flag = stepslow_flag;
-//assign 		medium_flag = stepmedium_flag;
 endmodule 
