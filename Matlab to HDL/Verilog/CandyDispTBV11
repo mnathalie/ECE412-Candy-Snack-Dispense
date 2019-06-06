@@ -1,0 +1,97 @@
+`timescale 1 s / 1 ps
+// add testing for candy dispense flags, 
+module testbench;
+     
+		reg     	teststate0;			//[0][2:0] teststate for 7 states from rasp pi
+		reg			teststate1;			//[1]
+		reg			teststate2;			//[2]
+		reg 	 	stateamount0;			//[0][1:0] stateamount for amount to dispense
+		reg	    	stateamount1;			//[1]
+		reg     	candyflag; 			//candyflag indicates when it's time to dispense
+
+		wire 		stepperstep;	// stepperstep
+		wire 		stepperdir;			// stepperdir;
+		wire  		dc1motor0;			// [0] of [1:0] dc1motor (IO_B9)
+		wire 		dc1motor1;			// [1] (IO_F7)
+		wire        dc1motor2;			// [2] (IO_C4)
+		wire  		dc2motor0;			// [0] of [1:0] dc2motor (a1)
+		wire 		dc2motor1;			// [1] (a2)
+		wire        dc2motor2; 			// [2] (a3)
+project_module DUT( .IO_B4(teststate0),.IO_B5(teststate1),.IO_B6(teststate2),
+					.IO_A3(stateamount0),.IO_A4(stateamount1),.IO_A5(candyflag),.IO_D9(stepperstep),.IO_A10(stepperdir),
+					.IO_B9(dc1motor0),.IO_F7(dc1motor1), .IO_C4(dc1motor2),.IO_D7(dc2motor0),.IO_E7(dc2motor1),.IO_E8(dc2motor2)
+				   );
+		initial
+	begin
+		#2
+		candyflag = 1'b1;
+		#2
+		candyflag = 1'b0;
+		teststate0 = 1'b0;
+		teststate1 = 1'b0;
+		teststate2 = 1'b0;
+		#2
+		stateamount0 = 1'b1;
+		stateamount1 = 1'b0;
+		candyflag = 1'b1;
+		#2
+		candyflag = 1'b0;
+		teststate0 = 1'b0;
+		teststate1 = 1'b0;
+		teststate2 = 1'b0;
+		#2
+		stateamount0 = 1'b0;
+		stateamount1 = 1'b1;
+		candyflag = 1'b1;
+		#2
+		candyflag = 1'b0;
+		teststate0 = 1'b0;
+		teststate1 = 1'b0;
+		teststate2 = 1'b0;
+		#2
+		teststate0 = 1'b1;
+		teststate1 = 1'b0;
+		teststate2 = 1'b1;
+		#2
+		teststate0 = 1'b1;
+		teststate1 = 1'b1;
+		teststate2 = 1'b1;
+		#1
+		teststate0 = 1'b0;
+		teststate1 = 1'b0;
+		teststate2 = 1'b1;
+		#2
+		teststate0 = 1'b1;
+		teststate1 = 1'b1;
+		teststate2 = 1'b1;
+		#1
+		teststate0 = 1'b1;
+		teststate1 = 1'b0;
+		teststate2 = 1'b1;
+		#2
+		teststate0 = 1'b1;
+		teststate1 = 1'b1;
+		teststate2 = 1'b1;
+		#1
+		teststate0 = 1'b0;
+		teststate1 = 1'b1;
+		teststate2 = 1'b0;
+		#2
+		teststate0 = 1'b1;
+		teststate1 = 1'b1;
+		teststate2 = 1'b1;
+		#1
+		teststate0 = 1'b1;
+		teststate1 = 1'b1;
+		teststate2 = 1'b0;
+		#2
+		teststate0 = 1'b0;
+		teststate1 = 1'b0;
+		teststate2 = 1'b0;
+		$finish; 
+	end
+	
+	
+	
+	
+endmodule
