@@ -46,7 +46,7 @@ reg	dc2_out;
 wire stepSlow;
 wire stepMedium;
 wire stepFast;
-wire dc_pwm5;
+wire dc_pwm15;
 wire dc_pwm25; //clock wire for DC, output of ~27733Hz ; med/fast
 wire dc_pwm50;
 wire dc_pwm75;
@@ -56,7 +56,7 @@ wire fixDC;
 reg	stepfast_flag;
 reg stepmedium_flag;
 reg stepslow_flag;
-reg DC1_5flag = 1'b1;
+reg DC1_15flag = 1'b1;
 reg DC1_25flag;
 reg DC1_50flag;
 reg DC1_75flag;
@@ -97,10 +97,10 @@ clock_division #(.N(101), .width(7)) inst_DC (
         .clk        (osc_clk),
         .clock_div_o (fixDC)	//18,086.95 Hz
 		);		
-//----------5% DUTY CYCLE AT 200Hz
-PWM_DC #(.rise(5)) inst_DCSLOW5_CLK (
+//----------15% DUTY CYCLE AT 200Hz
+PWM_DC #(.rise(15)) inst_DCSLOW15_CLK (
 		.clk (fixDC),			
-		.clk_out (dc_pwm5)
+		.clk_out (dc_pwm15)
 );
 
 //----------25% DUTY CYCLE AT 200Hz
@@ -135,8 +135,8 @@ end
 always @ (*)
 	if(DC1_50flag == 1'b1)
 		dc1_out = dc_pwm50;
-	else if(DC1_5flag == 1'b1)
-		dc1_out = dc_pwm5;
+	else if(DC1_15flag == 1'b1)
+		dc1_out = dc_pwm15;
 	else if(DC1_25flag == 1'b1)
 		dc1_out = dc_pwm25;
 	else if(DC1_75flag == 1'b1)
@@ -190,7 +190,7 @@ always @ (candyflag,teststate)	begin
 		case (teststate)
 			//Stepper motor testing
 			3'b000 :	begin
-						DC1_5flag = 1'b1;
+						DC1_15flag = 1'b1;
 						DC1_25flag = 1'b0;
 						DC1_50flag = 1'b0;
 						DC1_75flag = 1'b0;
@@ -218,7 +218,7 @@ always @ (candyflag,teststate)	begin
 			3'b110 :	DC1_75flag = 1'b1; // ? 1'b1 : 1'b0 ;
 		   default : 	begin     
 						//stop all motors
-						DC1_5flag = 1'b0;
+						DC1_15flag = 1'b0;
 						DC1_25flag = 1'b0;
 						DC1_75flag = 1'b0;
 						stepfast_flag = 1'b0;
